@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PdS_Project_2015_client_WPF.services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +21,15 @@ namespace PdS_Project_2015_client_WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        private IApplicationDataSource applicationDataSource;
+        private IApplicationMonitor applicationMonitor;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            this.applicationDataSource = new LocalApplicationDataSource();
+            this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
         }
     }
 }

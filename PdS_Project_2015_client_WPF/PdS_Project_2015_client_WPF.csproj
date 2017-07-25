@@ -54,6 +54,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="model\ApplicationInfo.cs" />
+    <Compile Include="model\ConnectionInfo.cs" />
+    <Compile Include="model\ApplicationDetails.cs" />
+    <Compile Include="services\ApplicationMonitor.cs" />
+    <Compile Include="services\IApplicationDataSource.cs" />
+    <Compile Include="services\IApplicationMonitor.cs" />
+    <Compile Include="services\IConnectionManager.cs" />
+    <Compile Include="services\LocalApplicationDataSource.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
