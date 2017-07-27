@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace PdS_Project_2015_client_WPF
 {
@@ -21,15 +22,67 @@ namespace PdS_Project_2015_client_WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        private IApplicationDataSource applicationDataSource;
+        private IApplicationInfoDataSource applicationDataSource;
         private IApplicationMonitor applicationMonitor;
+        private DispatcherTimer timer;
 
         public MainWindow()
         {
+
+            this.applicationDataSource = new LocalApplicationInfoDataSource();
+            this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
+            this.timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(100);
+            timer.Tick += UpdateGui;
+            
+            //Initialize GUI components!
             InitializeComponent();
 
-            this.applicationDataSource = new LocalApplicationDataSource();
-            this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
         }
+
+        private void UpdateGui(object sender, EventArgs e)
+        {
+            this.lvApplicationDetails.ItemsSource = this.applicationMonitor.GetApplicationDetails();
+        }
+
+        private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = !this.applicationMonitor.HasStarted;
+        }
+
+        private void StartApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
+        {
+            this.applicationMonitor.Start();
+            this.timer.Start();
+        }
+
+        private void StopApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = this.applicationMonitor.HasStarted;
+        }
+
+        private void StopApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
+        {
+            this.applicationMonitor.Stop();
+            timer.Stop();
+        }
+
+    }
+
+    public static class CustomCommands
+    {
+        //Define commands here!
+        public static readonly RoutedUICommand StartApplicationMonitor = new RoutedUICommand
+                (
+                        "Start Application Monitor",
+                        "Start Application Monitor",
+                        typeof(CustomCommands)
+                );
+        public static readonly RoutedUICommand StopApplicationMonitor = new RoutedUICommand
+                (
+                        "Stop Application Monitor",
+                        "Stop Application Monitor",
+                        typeof(CustomCommands)
+                );
     }
 }

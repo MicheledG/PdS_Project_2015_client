@@ -58,10 +58,10 @@
     <Compile Include="model\ConnectionInfo.cs" />
     <Compile Include="model\ApplicationDetails.cs" />
     <Compile Include="services\ApplicationMonitor.cs" />
-    <Compile Include="services\IApplicationDataSource.cs" />
+    <Compile Include="services\IApplicationInfoDataSource.cs" />
     <Compile Include="services\IApplicationMonitor.cs" />
     <Compile Include="services\IConnectionManager.cs" />
-    <Compile Include="services\LocalApplicationDataSource.cs" />
+    <Compile Include="services\LocalApplicationInfoDataSource.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

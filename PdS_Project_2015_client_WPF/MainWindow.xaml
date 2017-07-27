@@ -5,10 +5,36 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PdS_Project_2015_client_WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow">
+    <Window.CommandBindings>
+        <CommandBinding Command="local:CustomCommands.StartApplicationMonitor" CanExecute="StartApplicationMonitor_CanExecute" Executed="StartApplicationMonitor_Executed"/>
+        <CommandBinding Command="local:CustomCommands.StopApplicationMonitor" CanExecute="StopApplicationMonitor_CanExecute" Executed="StopApplicationMonitor_Executed"/>
+    </Window.CommandBindings>
     <Grid>
-        <DockPanel>
-            
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <DockPanel Grid.Column="0" LastChildFill="False">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+                <Button Width="100" Command="local:CustomCommands.StartApplicationMonitor">Start</Button>
+                <Button Width="100" Command="local:CustomCommands.StopApplicationMonitor">Stop</Button>
+            </StackPanel>
         </DockPanel>
+
+        <WrapPanel Grid.Column="1">
+            <ListView Name="lvApplicationDetails" Height="500">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="App ID" Width="100" DisplayMemberBinding="{Binding Id}"/>
+                        <GridViewColumn Header="Process Name" Width="300" DisplayMemberBinding="{Binding ProcessName}"/>
+                        <GridViewColumn Header="On Focus" Width="100" DisplayMemberBinding="{Binding HasFocus}"/>
+                        <GridViewColumn Header="Focus time" Width="500" DisplayMemberBinding="{Binding TimeOnFocus}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </WrapPanel>
+
     </Grid>
 </Window>
