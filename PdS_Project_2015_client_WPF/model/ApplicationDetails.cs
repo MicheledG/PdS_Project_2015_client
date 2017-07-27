@@ -5,6 +5,7 @@ namespace PdS_Project_2015_client_WPF.services
     public class ApplicationDetails : ApplicationInfo
     {
         private System.TimeSpan timeOnFocus;
+        private int timeOnFocusPercentual;
         
         public ApplicationDetails(ApplicationInfo applicationInfo)
         {
@@ -15,5 +16,6 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         public TimeSpan TimeOnFocus { get => timeOnFocus; set => timeOnFocus = value; }
+        public int TimeOnFocusPercentual { get => timeOnFocusPercentual; set => timeOnFocusPercentual = value; }
     }
 }

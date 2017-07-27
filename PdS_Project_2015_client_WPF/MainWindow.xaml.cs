@@ -32,7 +32,7 @@ namespace PdS_Project_2015_client_WPF
             this.applicationDataSource = new LocalApplicationInfoDataSource();
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(100);
+            timer.Interval = TimeSpan.FromMilliseconds(1000);
             timer.Tick += UpdateGui;
             
             //Initialize GUI components!
