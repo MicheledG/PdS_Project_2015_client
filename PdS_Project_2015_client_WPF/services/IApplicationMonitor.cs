@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace PdS_Project_2015_client_WPF.services
 {
+    public delegate void ApplicationMonitorDataUpdatedEventHandler();
+
     interface IApplicationMonitor
     {
         bool HasStarted { get; }
+        System.TimeSpan ActiveTime { get; }
         void Start();
         void Stop();
-        List<ApplicationDetails> GetApplicationDetails();
-    }
+        List<ApplicationDetails> GetAllApplicationDetails();
+        event ApplicationMonitorDataUpdatedEventHandler ApplicationMonitorDataUpdated;
+    }    
 }

@@ -21,28 +21,20 @@ namespace PdS_Project_2015_client_WPF
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
+    {        
         private IApplicationInfoDataSource applicationDataSource;
         private IApplicationMonitor applicationMonitor;
-        private DispatcherTimer timer;
-
+                
         public MainWindow()
         {
 
             this.applicationDataSource = new LocalApplicationInfoDataSource();
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
-            this.timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(1000);
-            timer.Tick += UpdateGui;
-            
+            this.applicationMonitor.ApplicationMonitorDataUpdated += () => { Application.Current.Dispatcher.Invoke(this.UpdateApplicationMonitorDataShown); };
+
             //Initialize GUI components!
             InitializeComponent();
 
-        }
-
-        private void UpdateGui(object sender, EventArgs e)
-        {
-            this.lvApplicationDetails.ItemsSource = this.applicationMonitor.GetApplicationDetails();
         }
 
         private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
@@ -51,9 +43,8 @@ namespace PdS_Project_2015_client_WPF
         }
 
         private void StartApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
-        {
-            this.applicationMonitor.Start();
-            this.timer.Start();
+        {            
+            this.applicationMonitor.Start();                                    
         }
 
         private void StopApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
@@ -64,7 +55,16 @@ namespace PdS_Project_2015_client_WPF
         private void StopApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
         {
             this.applicationMonitor.Stop();
-            timer.Stop();
+            this.lvApplicationDetails.ItemsSource = null;
+            this.tbApplicationMonitorActiveTime.Text = null;
+        }
+
+        private void UpdateApplicationMonitorDataShown()
+        {
+            //update the list of the application
+            this.lvApplicationDetails.ItemsSource = this.applicationMonitor.GetAllApplicationDetails();
+            //update the active time of the monitor
+            this.tbApplicationMonitorActiveTime.Text = this.applicationMonitor.ActiveTime.ToString();
         }
 
     }

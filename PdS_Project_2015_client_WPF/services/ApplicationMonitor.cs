@@ -8,37 +8,32 @@ namespace PdS_Project_2015_client_WPF.services
 {
     class ApplicationMonitor : IApplicationMonitor
     {
-        private const int UPDATE_RATE = 100; //ms
-        private System.DateTime startingTime;
-        private TimeSpan activeTime;
-        private System.DateTime lastUpdateTime;
-        private bool hasStarted;
-        public bool HasStarted { get { return this.hasStarted; } }
+        private const int UPDATE_RATE = 500; //ms
 
-        public TimeSpan ActiveTime { get => activeTime; set => activeTime = value; }
+        private bool hasStarted;
+        private System.DateTime startingTime;        
+        private System.DateTime lastUpdateTime;
+        private TimeSpan activeTime;
 
         private System.Threading.Thread monitorThread;
+                
+        //protects all the data accessible from different thread (dued to Event handlers, GUI thread and background thread)
+        private Object monitorLock;
 
         private IApplicationInfoDataSource dataSource;
         private Dictionary<int, ApplicationDetails> applicationDetailsDB;
-        private Object monitorLock;
-        
+
+        public event ApplicationMonitorDataUpdatedEventHandler ApplicationMonitorDataUpdated;
+
+        public bool HasStarted { get { return this.hasStarted; } }
+        public TimeSpan ActiveTime { get => activeTime; set => activeTime = value; }
 
         public ApplicationMonitor(IApplicationInfoDataSource dataSource)
         {
             this.hasStarted = false;            
-
             this.dataSource = dataSource;
             this.applicationDetailsDB = new Dictionary<int, ApplicationDetails>();
             this.monitorLock = new Object();
-        }
-        
-        public List<ApplicationDetails> GetApplicationDetails()
-        {
-            lock (this.monitorLock)
-            {
-                return this.applicationDetailsDB.Values.ToList();
-            }
         }
 
         public void Start()
@@ -49,7 +44,7 @@ namespace PdS_Project_2015_client_WPF.services
         public void Stop()
         {
             this.DeactiveApplicationMonitor();
-        }
+        }          
 
         private void InitializeApplicationMonitor()
         {
@@ -68,14 +63,15 @@ namespace PdS_Project_2015_client_WPF.services
                     ApplicationDetails applicationDetails = new ApplicationDetails(applicationInfo);
                     this.applicationDetailsDB.Add(applicationDetails.Id, applicationDetails);
                 }
-            }
             
-            //subscribe the event handler
-            this.dataSource.AppOpened += this.AppOpenedEventHandler;
-            this.dataSource.AppClosed += this.AppClosedEventHandler;
-            this.dataSource.FocusChange += this.FocusChangeEventHandler;
+                //subscribe the event handler
+                this.dataSource.AppOpened += this.AppOpenedEventHandler;
+                this.dataSource.AppClosed += this.AppClosedEventHandler;
+                this.dataSource.FocusChange += this.FocusChangeEventHandler;
+            }
 
             this.monitorThread = new System.Threading.Thread(this.MonitorApplications);
+            this.monitorThread.IsBackground = true;
             this.monitorThread.Start();
         }
 
@@ -113,7 +109,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        //This method can be called by anyone to update the monitor status and the application details stored into the monitor DB
+        //This method is called periodically by the monitor thread
         private void UpdateMonitorData()
         {
             lock (this.monitorLock)
@@ -137,68 +133,83 @@ namespace PdS_Project_2015_client_WPF.services
 
             //DEBUG!
             this.PrintAllApplicationDetails();
+
+            this.NotifyApplicationMonitorDataUpdated();
         }
 
-        /*
-         * EVENT DRIVEN HANDLERs 
-         */
-       
+        private void NotifyApplicationMonitorDataUpdated()
+        {
+            if(this.ApplicationMonitorDataUpdated != null)
+            {
+                this.ApplicationMonitorDataUpdated();
+            }
+        }
+
+        public List<ApplicationDetails> GetAllApplicationDetails()
+        {
+            lock (this.monitorLock)
+            {
+                return this.applicationDetailsDB.Values.ToList();
+            }
+        }
+
+        //public ApplicationDetails GetApplicationDetails(int appId)
+        //{
+        //    lock (this.monitorLock)
+        //    {
+        //        return this.applicationDetailsDB[appId];
+        //    }
+        //}        
+
         //Handler called by anyone to insert the new application details in the Monitor DB
         private void AppOpenedEventHandler(int appId)
         {
-            if (!this.applicationDetailsDB.ContainsKey(appId))
+            lock (this.monitorLock)
             {
-                ApplicationInfo applicationInfo = this.dataSource.GetApplicationInfo(appId);
-                ApplicationDetails applicationDetails = new ApplicationDetails(applicationInfo);
-
-                lock (this.monitorLock)
+                if (!this.applicationDetailsDB.ContainsKey(appId))
                 {
+                    ApplicationInfo applicationInfo = this.dataSource.GetApplicationInfo(appId);
+                    ApplicationDetails applicationDetails = new ApplicationDetails(applicationInfo);
                     this.applicationDetailsDB.Add(applicationDetails.Id, applicationDetails);
                 }
-
-                this.UpdateMonitorData();
-            }
-            else
-            {
-                throw new Exception("impossible to add application with id " + appId + " already in the db");
+                else
+                {
+                    throw new Exception("impossible to add application with id " + appId + " already in the db");
+                }
             }
         }
 
         //Handler called by anyone to remove the details of a closed application from the Monitor DB
         private void AppClosedEventHandler(int appId)
         {
-            if (this.applicationDetailsDB.ContainsKey(appId))
+            lock (this.monitorLock)
             {
-                lock (this.monitorLock)
+                if (this.applicationDetailsDB.ContainsKey(appId))
                 {
-                    this.applicationDetailsDB.Remove(appId);
+                   this.applicationDetailsDB.Remove(appId);
                 }
-
-                this.UpdateMonitorData();
-            }
-            else
-            {
-                throw new Exception("impossible to remove application with id " + appId + " not present in the db");
-            }
+                else
+                {
+                    throw new Exception("impossible to remove application with id " + appId + " not present in the db");
+                }
+            }            
         }
 
         //Handler called by anyone to update the application which holds the focus
         private void FocusChangeEventHandler(int previousFocusAppId, int currentFocusAppId)
         {
-            if (this.applicationDetailsDB.ContainsKey(previousFocusAppId) && this.applicationDetailsDB.ContainsKey(currentFocusAppId))
+            lock (this.monitorLock)
             {
-                lock (this.monitorLock)
+                if (this.applicationDetailsDB.ContainsKey(previousFocusAppId) && this.applicationDetailsDB.ContainsKey(currentFocusAppId))
                 {
                     this.applicationDetailsDB[previousFocusAppId].HasFocus = false;
                     this.applicationDetailsDB[currentFocusAppId].HasFocus = true;
                 }
-
-                this.UpdateMonitorData();
-            }
-            else
-            {
-                throw new Exception("impossible to update focus missing applications in the db");
-            }
+                else
+                {
+                    throw new Exception("impossible to update focus missing applications in the db");
+                }
+            }            
         }
 
         //DEBUG FUNCTION!!!

@@ -111,6 +111,7 @@ namespace PdS_Project_2015_client_WPF.services
         {
             this.opened = true;
             this.dataSourceThread = new System.Threading.Thread(this.UpdatingDataSource);
+            this.dataSourceThread.IsBackground = true;
             this.dataSourceThread.Start();
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace PdS_Project_2015_client_WPF.services
 {
@@ -15,7 +16,26 @@ namespace PdS_Project_2015_client_WPF.services
             this.timeOnFocus = System.TimeSpan.Zero;
         }
 
-        public TimeSpan TimeOnFocus { get => timeOnFocus; set => timeOnFocus = value; }
-        public int TimeOnFocusPercentual { get => timeOnFocusPercentual; set => timeOnFocusPercentual = value; }
+        public TimeSpan TimeOnFocus {
+            get => timeOnFocus;
+            set
+            {
+                if(this.timeOnFocus != value)
+                {
+                    this.timeOnFocus = value;                    
+                }                
+            }
+        }
+
+        public int TimeOnFocusPercentual { 
+            get => timeOnFocusPercentual;
+            set
+            {
+                if (this.timeOnFocusPercentual != value)
+                {
+                    this.timeOnFocusPercentual = value;                    
+                }
+            }
+        }        
     }
 }
