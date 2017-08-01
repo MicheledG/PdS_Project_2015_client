@@ -145,21 +145,19 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        public List<ApplicationDetails> GetAllApplicationDetails()
+        public Dictionary<int, ApplicationDetails> GetAllApplicationDetails()
         {
             lock (this.monitorLock)
             {
-                return this.applicationDetailsDB.Values.ToList();
+                //clone the db wit a deep copy
+                Dictionary<int, ApplicationDetails> clone = new Dictionary<int, ApplicationDetails>();
+                foreach (KeyValuePair<int, ApplicationDetails> originalEntry in this.applicationDetailsDB)
+                {
+                    clone.Add(originalEntry.Key, (ApplicationDetails) originalEntry.Value.Clone());
+                }
+                return clone;                
             }
-        }
-
-        //public ApplicationDetails GetApplicationDetails(int appId)
-        //{
-        //    lock (this.monitorLock)
-        //    {
-        //        return this.applicationDetailsDB[appId];
-        //    }
-        //}        
+        }        
 
         //Handler called by anyone to insert the new application details in the Monitor DB
         private void AppOpenedEventHandler(int appId)
