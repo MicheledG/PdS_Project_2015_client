@@ -125,7 +125,7 @@ namespace PdS_Project_2015_client_WPF.services
                         dbEntry.Value.TimeOnFocus += (updateTime - this.lastUpdateTime);
                     }
                     //update percentual time on focus
-                    dbEntry.Value.TimeOnFocusPercentual = (int)((dbEntry.Value.TimeOnFocus.TotalMilliseconds / this.activeTime.TotalMilliseconds) * 100);
+                    dbEntry.Value.TimeOnFocusPercentual = (dbEntry.Value.TimeOnFocus.TotalMilliseconds / this.activeTime.TotalMilliseconds);
                 }
                         
                 this.lastUpdateTime = updateTime;

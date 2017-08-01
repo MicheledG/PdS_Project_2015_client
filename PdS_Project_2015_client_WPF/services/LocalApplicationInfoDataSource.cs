@@ -91,18 +91,42 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 lock (this.dbLock)
                 {
-                    this.appInfoDB[this.focusIndex].HasFocus = false;
-                    previousFocusAppId = this.focusIndex;
+                    this.appInfoDB.ElementAt(this.focusIndex).Value.HasFocus = false;
+                    previousFocusAppId = this.appInfoDB.ElementAt(this.focusIndex).Value.Id;
                     focusIndex++;
-                    if (focusIndex > 3)
+                    if (focusIndex >= this.appInfoDB.Count)
                     {
                         focusIndex = 1;
                     }
-                    this.appInfoDB[this.focusIndex].HasFocus = true;
-                    currentFocusAppId = focusIndex;
+                    this.appInfoDB.ElementAt(this.focusIndex).Value.HasFocus = true;
+                    currentFocusAppId = this.appInfoDB.ElementAt(this.focusIndex).Value.Id;
                 }
-                
+
                 this.NotifyFocusChangeEvent(previousFocusAppId, currentFocusAppId);
+                System.Threading.Thread.Sleep(1000);
+
+                //insert a new  random application
+                Random randomKeyGenerator = new Random();                
+                ApplicationInfo applicationInfo;
+                lock (this.dbLock)
+                {
+                    applicationInfo = new ApplicationInfo()
+                    {
+                        Id = randomKeyGenerator.Next(1, 1001),
+                        ProcessName = "new test process",
+                        HasFocus = false
+                    };
+                    this.appInfoDB.Add(applicationInfo.Id, applicationInfo);
+                }
+
+                this.NotifyAppOpenedEvent(applicationInfo.Id);
+                System.Threading.Thread.Sleep(1000);
+
+                //remove a random application                
+                int randomIndex = randomKeyGenerator.Next(1, this.appInfoDB.Count);
+                int randomKey = this.appInfoDB.ElementAt(randomIndex).Key;
+                this.appInfoDB.Remove(randomKey);
+                this.NotifyAppClosedEvent(randomKey);
                 System.Threading.Thread.Sleep(1000);
             }
         }

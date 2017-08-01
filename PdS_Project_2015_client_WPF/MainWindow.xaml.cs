@@ -22,13 +22,14 @@ namespace PdS_Project_2015_client_WPF
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {        
+    {
+        private const int GUI_REFRESH_RATE = 500; //ms
         private IApplicationInfoDataSource applicationDataSource;
         private IApplicationMonitor applicationMonitor;
         private Dictionary<int, int> applicationDetailsIndexes;
-        private ObservableCollection<ApplicationDetails> applicationDetailsList;
-        private DispatcherTimer timer;    
-
+        private ObservableCollection<ApplicationDetails> applicationDetailsList;        
+        private DispatcherTimer timer;
+        
 
         public MainWindow()
         {
@@ -36,22 +37,22 @@ namespace PdS_Project_2015_client_WPF
             this.applicationDataSource = new LocalApplicationInfoDataSource();
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.applicationDetailsIndexes = new Dictionary<int, int>();
-            this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();
+            this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();            
 
             this.timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(500);
+            timer.Interval = TimeSpan.FromMilliseconds(GUI_REFRESH_RATE);
             timer.Tick += Timer_Tick;
             
-
             //Initialize GUI components!
             InitializeComponent();
+            this.DataContext = this;
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
 
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            this.UpdateApplicationDetailsList();
+            this.UpdateGui();
         }
 
         private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
@@ -76,15 +77,29 @@ namespace PdS_Project_2015_client_WPF
             timer.Stop();
         }
 
+        //update all the GUI components
+        private void UpdateGui()
+        {
+            this.UpdateApplicationMontiorActiveTime();
+            this.UpdateApplicationDetailsList();            
+        }
+
+        //update the application monitor active time
+        private void UpdateApplicationMontiorActiveTime()
+        {
+            this.tbApplicationMonitorActiveTime.Text = this.applicationMonitor.ActiveTime.ToString(@"hh\:mm\:ss");
+        }
+
         //update the observale list of the application details
         private void UpdateApplicationDetailsList()
         {                        
             
             //get the latest application details from the application monitor
             Dictionary<int, ApplicationDetails> applicationDetails = this.applicationMonitor.GetAllApplicationDetails();
+            int i;
 
             //remove the closed apps from the application details shown in the GUI 
-            for (int i = 0; i < this.applicationDetailsIndexes.Count; i++)
+            for (i = 0; i < this.applicationDetailsIndexes.Count; i++)
             {
                 KeyValuePair<int, int> indexEntry = this.applicationDetailsIndexes.ElementAt(i);
                 if (!applicationDetails.ContainsKey(indexEntry.Key))
@@ -95,7 +110,14 @@ namespace PdS_Project_2015_client_WPF
                 }
             }
 
-            //insert the new opened apps in the application details shown in the GUI and update the details of all the other application
+            //update the indexes to the application details
+            this.applicationDetailsIndexes.Clear();
+            for(i = 0; i < this.applicationDetailsList.Count; i++)
+            {
+                this.applicationDetailsIndexes.Add(this.applicationDetailsList[i].Id, i);
+            }
+
+            //enqueue the new opened apps in the application details shown in the GUI and update the details of all the other application
             foreach (KeyValuePair<int, ApplicationDetails> entry in applicationDetails)
             {
                 if (!this.applicationDetailsIndexes.ContainsKey(entry.Key))

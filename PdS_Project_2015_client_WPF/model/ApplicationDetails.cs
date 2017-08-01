@@ -9,7 +9,7 @@ namespace PdS_Project_2015_client_WPF.services
         private string processName;
         private bool hasFocus;
         private System.TimeSpan timeOnFocus;
-        private int timeOnFocusPercentual;
+        private double timeOnFocusPercentual;
 
         private ApplicationDetails(ApplicationDetails applicationDetails) {
             this.id = applicationDetails.Id;
@@ -77,7 +77,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        public int TimeOnFocusPercentual { 
+        public double TimeOnFocusPercentual { 
             get => timeOnFocusPercentual;
             set
             {
