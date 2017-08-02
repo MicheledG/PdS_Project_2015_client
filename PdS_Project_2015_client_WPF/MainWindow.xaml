@@ -5,97 +5,105 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PdS_Project_2015_client_WPF"
         mc:Ignorable="d"
-        Title="MainWindow">
+        Title="MainWindow" d:DesignWidth="741" d:DesignHeight="658">
     <Window.CommandBindings>
         <CommandBinding Command="local:CustomCommands.StartApplicationMonitor" CanExecute="StartApplicationMonitor_CanExecute" Executed="StartApplicationMonitor_Executed"/>
         <CommandBinding Command="local:CustomCommands.StopApplicationMonitor" CanExecute="StopApplicationMonitor_CanExecute" Executed="StopApplicationMonitor_Executed"/>
     </Window.CommandBindings>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <StackPanel Grid.Column="0">
-
-            <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Height="250" VerticalAlignment="Top">
-                <StackPanel>
-                    <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Setup</Run></TextBlock>
-                    <Label Margin="0,5" Content="Host Address:" HorizontalAlignment="Left"></Label>
-                    <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
-                        <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                        <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
-                        <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                        <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
-                        <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                        <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Height="250" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Setup</Run></TextBlock>
+                        <Label Margin="0,5" Content="Host Address:" HorizontalAlignment="Left"></Label>
+                        <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                            <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
+                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                            <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
+                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                            <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
+                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                        </StackPanel>
+                        <Label Margin="0,5" Content="Host Port:" HorizontalAlignment="Left"></Label>
+                        <WrapPanel HorizontalAlignment="Left" Margin="5,5">
+                            <TextBox Width="40" TextAlignment="Center"></TextBox>
+                            <TextBlock Margin="5,0,0,0">[0 - 65000]</TextBlock>
+                        </WrapPanel>
+                        <WrapPanel Margin="0,30,0,0" HorizontalAlignment="Center">
+                            <Button Margin="5,0,5,0"  Width="60" Command="local:CustomCommands.StartApplicationMonitor">Start</Button>
+                            <Button Margin="5,0,5,0" Width="60" Command="local:CustomCommands.StopApplicationMonitor">Stop</Button>
+                        </WrapPanel>
                     </StackPanel>
-                    <Label Margin="0,5" Content="Host Port:" HorizontalAlignment="Left"></Label>
-                    <WrapPanel HorizontalAlignment="Left" Margin="5,5">
-                        <TextBox Width="40" TextAlignment="Center"></TextBox>
-                        <TextBlock Margin="5,0,0,0">[0 - 65000]</TextBlock>
-                    </WrapPanel>
-                    <WrapPanel Margin="0,30,0,0" HorizontalAlignment="Center">
-                        <Button Margin="5,0,5,0"  Width="60" Command="local:CustomCommands.StartApplicationMonitor">Start</Button>
-                        <Button Margin="5,0,5,0" Width="60" Command="local:CustomCommands.StopApplicationMonitor">Stop</Button>
-                    </WrapPanel>
-                </StackPanel>
+                </Border>
+                <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Height="150" VerticalAlignment="Top">
+                    <StackPanel>
+                        <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Status</Run></TextBlock>
+                        <WrapPanel>
+                            <Label Margin="0,5" Content="Status:" HorizontalAlignment="Left"></Label>
+                            <Image Source="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_red.png" Width="16"/>
+                            <TextBlock VerticalAlignment="Center">Disconnected</TextBlock>
+                        </WrapPanel>
+                        <WrapPanel>
+                            <Label Margin="0,5" Content="Elapsed Time:" HorizontalAlignment="Left"></Label>
+                            <TextBlock Name="tbApplicationMonitorActiveTime" VerticalAlignment="Center"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10" Height="500" VerticalAlignment="Top">
+                <ListView Name="lvApplicationDetails" Height="500" HorizontalAlignment="Stretch">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Process" Width="300">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <WrapPanel>
+                                            <!-- <Image Source="{Binding Icon}" Width="16"/> -->
+                                            <Image Margin="2" Width="24" Source="{Binding Icon}"/>
+                                            <TextBlock VerticalAlignment="Center" Text="{Binding ProcessName}"/>
+                                        </WrapPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="PID" Width="100" DisplayMemberBinding="{Binding Id}"/>
+                            <GridViewColumn Header="On Focus" Width="100" DisplayMemberBinding="{Binding HasFocus}"/>
+                            <GridViewColumn Header="Focus time" Width="200">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding TimeOnFocus, StringFormat={}{0:hh':'mm':'ss}}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Focus time %" Width="200">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding TimeOnFocusPercentual, StringFormat={}{0:P0}}"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
             </Border>
-
-            <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Height="150" VerticalAlignment="Top">
-                <StackPanel>
-                    <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Status</Run></TextBlock>
-                    <WrapPanel>
-                        <Label Margin="0,5" Content="Status:" HorizontalAlignment="Left"></Label>
-                        <Image Source="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_red.png" Width="16"/>
-                        <TextBlock VerticalAlignment="Center">Disconnected</TextBlock>
-                    </WrapPanel>
-                    <WrapPanel>
-                        <Label Margin="0,5" Content="Elapsed Time:" HorizontalAlignment="Left"></Label>
-                        <TextBlock Name="tbApplicationMonitorActiveTime" VerticalAlignment="Center"/>
-                    </WrapPanel>
-                </StackPanel>
-            </Border>
-            
-        </StackPanel>
-                
-
-
-        <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10" Height="500" VerticalAlignment="Top">
-            <ListView Name="lvApplicationDetails" Height="500" HorizontalAlignment="Stretch">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Process" Width="300">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <WrapPanel>
-                                        <Image Source="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_red.png" Width="16"/>
-                                        <TextBlock VerticalAlignment="Center" Text="{Binding ProcessName}"/>
-                                    </WrapPanel>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="PID" Width="100" DisplayMemberBinding="{Binding Id}"/>
-                        <GridViewColumn Header="On Focus" Width="100" DisplayMemberBinding="{Binding HasFocus}"/>
-                        <GridViewColumn Header="Focus time" Width="200">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding TimeOnFocus, StringFormat={}{0:hh':'mm':'ss}}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Focus time %" Width="200">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding TimeOnFocusPercentual, StringFormat={}{0:P0}}"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+        </Grid>
+        <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Height="100">
+            <StackPanel>
+                <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Send Keys</Run></TextBlock>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" HorizontalAlignment="Stretch" Margin="5,5"/>
+                    <Button Grid.Column="1" Width="60" Margin="5,5" HorizontalAlignment="Right">Send</Button>
+                </Grid>
+            </StackPanel>
         </Border>
-
-    </Grid>
+    </StackPanel>
 </Window>

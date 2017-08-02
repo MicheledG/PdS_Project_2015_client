@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:PdS_Project_2015_client_WPF"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <BitmapImage x:Key="MissingIconImage" UriSource="/resources/images/MissingIconImage.png" />
     </Application.Resources>
 </Application>

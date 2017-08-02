@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -57,6 +58,8 @@
     <Compile Include="model\ApplicationInfo.cs" />
     <Compile Include="model\ConnectionInfo.cs" />
     <Compile Include="model\ApplicationDetails.cs" />
+    <Compile Include="model\json\JsonApplicationInfo.cs" />
+    <Compile Include="model\json\JsonMessage.cs" />
     <Compile Include="services\ApplicationMonitor.cs" />
     <Compile Include="services\IApplicationInfoDataSource.cs" />
     <Compile Include="services\IApplicationMonitor.cs" />
@@ -100,6 +103,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="resources\images\MissingIconImage.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

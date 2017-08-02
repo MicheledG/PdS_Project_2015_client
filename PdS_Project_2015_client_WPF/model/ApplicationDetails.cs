@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace PdS_Project_2015_client_WPF.services
 {
@@ -10,6 +11,7 @@ namespace PdS_Project_2015_client_WPF.services
         private bool hasFocus;
         private System.TimeSpan timeOnFocus;
         private double timeOnFocusPercentual;
+        private System.Windows.Media.Imaging.BitmapImage icon;
 
         private ApplicationDetails(ApplicationDetails applicationDetails) {
             this.id = applicationDetails.Id;
@@ -17,6 +19,7 @@ namespace PdS_Project_2015_client_WPF.services
             this.hasFocus = applicationDetails.HasFocus;
             this.timeOnFocus = applicationDetails.TimeOnFocus;
             this.timeOnFocusPercentual = applicationDetails.TimeOnFocusPercentual;
+            this.Icon = applicationDetails.Icon;
         }
 
         public ApplicationDetails(ApplicationInfo applicationInfo)
@@ -26,6 +29,7 @@ namespace PdS_Project_2015_client_WPF.services
             this.hasFocus = applicationInfo.HasFocus;
             this.timeOnFocus = System.TimeSpan.Zero;
             this.timeOnFocusPercentual = 0;
+            this.Icon = applicationInfo.fromBase64ToImage();
         }
 
         public int Id {
@@ -88,6 +92,8 @@ namespace PdS_Project_2015_client_WPF.services
                 }
             }
         }
+
+        public System.Windows.Media.Imaging.BitmapImage Icon { get => icon; set => icon = value; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -44,8 +44,7 @@ namespace PdS_Project_2015_client_WPF
             timer.Tick += Timer_Tick;
             
             //Initialize GUI components!
-            InitializeComponent();
-            this.DataContext = this;
+            InitializeComponent();            
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
 
         }
