@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Globalization;
 
 namespace PdS_Project_2015_client_WPF
 {
@@ -28,12 +29,10 @@ namespace PdS_Project_2015_client_WPF
         private IApplicationMonitor applicationMonitor;
         private Dictionary<int, int> applicationDetailsIndexes;
         private ObservableCollection<ApplicationDetails> applicationDetailsList;        
-        private DispatcherTimer timer;
-        
+        private DispatcherTimer timer;        
 
         public MainWindow()
         {
-
             this.applicationDataSource = new LocalApplicationInfoDataSource();
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.applicationDetailsIndexes = new Dictionary<int, int>();
@@ -46,7 +45,7 @@ namespace PdS_Project_2015_client_WPF
             //Initialize GUI components!
             InitializeComponent();            
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
-
+            this.applicationDataSource.StatusChanged += this.ApplicationDataSourceStatusChangeEventHandler;
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -136,6 +135,39 @@ namespace PdS_Project_2015_client_WPF
                 }
             }            
         }
+
+        //handle the change of status of the application data source
+        private void ApplicationDataSourceStatusChangeEventHandler()
+        {
+            Application.Current.Dispatcher.Invoke(new Action(() => {
+                if (this.applicationDataSource.Opened)
+                {
+                    this.imgConnectionStatus.Source = (System.Windows.Media.Imaging.BitmapImage)System.Windows.Application.Current.FindResource("ConnectedImage");
+                    this.tbConnectionStatus.Text = "Connected";
+                    this.tbHostAddressByte0.IsEnabled = false;
+                    this.tbHostAddressByte1.IsEnabled = false;
+                    this.tbHostAddressByte2.IsEnabled = false;
+                    this.tbHostAddressByte3.IsEnabled = false;
+                    this.tbHostPort.IsEnabled = false;
+                }
+                else
+                {
+                    this.imgConnectionStatus.Source = (System.Windows.Media.Imaging.BitmapImage)System.Windows.Application.Current.FindResource("DisconnectedImage");
+                    this.tbConnectionStatus.Text = "Disconnected";
+                    this.tbHostAddressByte0.IsEnabled = true;
+                    this.tbHostAddressByte1.IsEnabled = true;
+                    this.tbHostAddressByte2.IsEnabled = true;
+                    this.tbHostAddressByte3.IsEnabled = true;
+                    this.tbHostPort.IsEnabled = true;
+                }
+            }));
+        }
+
+        private void CheckIpAddress()
+        {
+            if(Int32.TryParse(tbHostAddressByte0.Text)
+            
+        }
     }
 
     public static class CustomCommands
@@ -153,5 +185,5 @@ namespace PdS_Project_2015_client_WPF
                         "Stop Application Monitor",
                         typeof(CustomCommands)
                 );
-    }
+    }    
 }

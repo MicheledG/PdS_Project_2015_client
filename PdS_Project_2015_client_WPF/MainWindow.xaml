@@ -22,17 +22,17 @@
                         <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Setup</Run></TextBlock>
                         <Label Margin="0,5" Content="Host Address:" HorizontalAlignment="Left"></Label>
                         <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                            <TextBox Name="tbHostAddressByte0" Width="40" TextAlignment="Center"></TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                            <TextBox Name="tbHostAddressByte1" Width="40" TextAlignment="Center"></TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                            <TextBox Name="tbHostAddressByte2" Width="40" TextAlignment="Center"></TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                            <TextBox Width="40" TextAlignment="Center" IsEnabled="{Binding StartApplicationMonitor_CanExecute}"></TextBox>
+                            <TextBox Name="tbHostAddressByte3" Width="40" TextAlignment="Center"></TextBox>
                         </StackPanel>
                         <Label Margin="0,5" Content="Host Port:" HorizontalAlignment="Left"></Label>
                         <WrapPanel HorizontalAlignment="Left" Margin="5,5">
-                            <TextBox Width="40" TextAlignment="Center"></TextBox>
+                            <TextBox Name="tbHostPort" Width="40" TextAlignment="Center"></TextBox>
                             <TextBlock Margin="5,0,0,0">[0 - 65000]</TextBlock>
                         </WrapPanel>
                         <WrapPanel Margin="0,30,0,0" HorizontalAlignment="Center">
@@ -46,8 +46,8 @@
                         <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Status</Run></TextBlock>
                         <WrapPanel>
                             <Label Margin="0,5" Content="Status:" HorizontalAlignment="Left"></Label>
-                            <Image Source="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_red.png" Width="16"/>
-                            <TextBlock VerticalAlignment="Center">Disconnected</TextBlock>
+                            <Image Name="imgConnectionStatus" Source="{StaticResource DisconnectedImage}" Width="16"/>
+                            <TextBlock Name="tbConnectionStatus" VerticalAlignment="Center" Text="Disconnected"/>
                         </WrapPanel>
                         <WrapPanel>
                             <Label Margin="0,5" Content="Elapsed Time:" HorizontalAlignment="Left"></Label>
@@ -64,7 +64,6 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <WrapPanel>
-                                            <!-- <Image Source="{Binding Icon}" Width="16"/> -->
                                             <Image Margin="2" Width="24" Source="{Binding Icon}"/>
                                             <TextBlock VerticalAlignment="Center" Text="{Binding ProcessName}"/>
                                         </WrapPanel>
@@ -83,7 +82,7 @@
                             <GridViewColumn Header="Focus time %" Width="200">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding TimeOnFocusPercentual, StringFormat={}{0:P0}}"/>
+                                        <TextBlock Text="{Binding TimeOnFocusPercentual, StringFormat={}{0:P1}}"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

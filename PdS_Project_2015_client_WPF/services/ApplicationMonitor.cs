@@ -23,6 +23,7 @@ namespace PdS_Project_2015_client_WPF.services
         private IApplicationInfoDataSource dataSource;
         private Dictionary<int, ApplicationDetails> applicationDetailsDB;
 
+        //to be notified on each update of the application monitor (not used till now by the GUI thread)
         public event ApplicationMonitorDataUpdatedEventHandler ApplicationMonitorDataUpdated;
 
         public bool HasStarted { get { return this.hasStarted; } }
@@ -64,26 +65,27 @@ namespace PdS_Project_2015_client_WPF.services
                     this.applicationDetailsDB.Add(applicationDetails.Id, applicationDetails);
                 }
             
-                //subscribe the event handler
+                //subscribe the data source events
                 this.dataSource.AppOpened += this.AppOpenedEventHandler;
                 this.dataSource.AppClosed += this.AppClosedEventHandler;
                 this.dataSource.FocusChange += this.FocusChangeEventHandler;
             }
 
             this.monitorThread = new System.Threading.Thread(this.MonitorApplications);
-            this.monitorThread.IsBackground = true;
+            this.monitorThread.IsBackground = true; //usefull during application exit
             this.monitorThread.Start();
         }
 
         private void DeactiveApplicationMonitor()
         {
-
+            //stop the application monitor thread
             this.hasStarted = false;
             this.monitorThread.Join();
 
+            //close the data source (stop)
             this.dataSource.Close();
 
-            //unsubscribe the event handler
+            //unsubscribe the events of the data source
             this.dataSource.AppOpened -= this.AppOpenedEventHandler;
             this.dataSource.AppClosed -= this.AppClosedEventHandler;
             this.dataSource.FocusChange -= this.FocusChangeEventHandler;
@@ -94,6 +96,7 @@ namespace PdS_Project_2015_client_WPF.services
                 this.applicationDetailsDB.Clear();
             }
 
+            //reset the application monitor status
             this.startingTime = System.DateTime.MinValue;
             this.lastUpdateTime = System.DateTime.MinValue;
             this.activeTime = System.TimeSpan.Zero;                        
@@ -131,8 +134,9 @@ namespace PdS_Project_2015_client_WPF.services
                 this.lastUpdateTime = updateTime;
             }
 
-            //DEBUG!
+            //DEBUG START!
             this.PrintAllApplicationDetails();
+            //DEBUG END!
 
             this.NotifyApplicationMonitorDataUpdated();
         }
@@ -159,7 +163,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }        
 
-        //Handler called by anyone to insert the new application details in the Monitor DB
+        //Handler called by the data source to insert the new application details in the application monitor DB
         private void AppOpenedEventHandler(int appId)
         {
             lock (this.monitorLock)
@@ -172,7 +176,7 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 else
                 {
-                    throw new Exception("impossible to add application with id " + appId + " already in the db");
+                    throw new Exception("impossible to add application with id " + appId + ", it is already in the db");
                 }
             }
         }
@@ -188,7 +192,7 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 else
                 {
-                    throw new Exception("impossible to remove application with id " + appId + " not present in the db");
+                    throw new Exception("impossible to remove application with id " + appId + ", it is not present in the db");
                 }
             }            
         }

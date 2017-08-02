@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,9 +17,22 @@ namespace PdS_Project_2015_client_WPF.services
         private bool opened;
         private System.Threading.Thread dataSourceThread;
 
+        public bool Opened {
+            get => this.opened;
+            set
+            {
+                if(this.opened != value)
+                {
+                    this.opened = value;
+                    this.NotifyStatusChangedEvent();                    
+                }
+            }
+        }        
+
         public event AppOpenedEventHandler AppOpened;
         public event AppClosedEventHandler AppClosed;
         public event FocusChangeEventHandler FocusChange;
+        public event StatusChangedEventHandler StatusChanged;
 
         public LocalApplicationInfoDataSource()
         {
@@ -56,6 +70,14 @@ namespace PdS_Project_2015_client_WPF.services
                     throw new KeyNotFoundException("application with id " + appId + " not found!");
                 }
             }            
+        }
+
+        private void NotifyStatusChangedEvent()
+        {
+            if (this.StatusChanged != null)
+            {
+                this.StatusChanged();
+            }
         }
 
         private void NotifyAppOpenedEvent(int appId)
@@ -133,15 +155,15 @@ namespace PdS_Project_2015_client_WPF.services
 
         public void Open()
         {
-            this.opened = true;
+            this.Opened = true;
             this.dataSourceThread = new System.Threading.Thread(this.UpdatingDataSource);
             this.dataSourceThread.IsBackground = true;
-            this.dataSourceThread.Start();
+            this.dataSourceThread.Start();            
         }
 
         public void Close()
         {
-            this.opened = false;
+            this.Opened = false;
             this.dataSourceThread.Join();
         }
     }

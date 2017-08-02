@@ -5,5 +5,7 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <BitmapImage x:Key="MissingIconImage" UriSource="/resources/images/MissingIconImage.png" />
+        <BitmapImage x:Key="ConnectedImage" UriSource="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_green.png"/>
+        <BitmapImage x:Key="DisconnectedImage" UriSource="http://cdn1.iconfinder.com/data/icons/fatcow/16/bullet_red.png"/>
     </Application.Resources>
 </Application>
