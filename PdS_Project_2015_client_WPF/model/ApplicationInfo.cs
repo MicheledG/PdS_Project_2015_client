@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PdS_Project_2015_client_WPF.model.json;
+using System;
 
 namespace PdS_Project_2015_client_WPF.services
 {
@@ -13,6 +14,19 @@ namespace PdS_Project_2015_client_WPF.services
         public string ProcessName { get => processName; set => processName = value; }
         public bool HasFocus { get => hasFocus; set => hasFocus = value; }
         public string Icon64 {get => icon64; set => icon64 = value; }        
+
+        public ApplicationInfo()
+        {
+            this.id = -1;            
+        }
+
+        public ApplicationInfo(JsonApplicationInfo jsonApplicationInfo)
+        {
+            this.id = jsonApplicationInfo.app_id;
+            this.processName = jsonApplicationInfo.app_name;
+            this.hasFocus = jsonApplicationInfo.focus;
+            this.icon64 = jsonApplicationInfo.icon_64;
+        }
 
         public System.Windows.Media.Imaging.BitmapImage fromBase64ToImage()
         {
