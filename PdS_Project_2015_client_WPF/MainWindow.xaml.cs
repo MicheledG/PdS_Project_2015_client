@@ -16,34 +16,54 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Globalization;
+using System.ComponentModel;
 
 namespace PdS_Project_2015_client_WPF
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
+    public class GlobalConst
+    {
+        public const int MIN_PORT = 1;
+        public const int MAX_PORT = 65000;
+        public const int DEFAULT_PORT = 27017;
+    }
+
     public partial class MainWindow : Window
     {
         private const int GUI_REFRESH_RATE = 500; //ms
         private IApplicationInfoDataSource applicationDataSource;
         private IApplicationMonitor applicationMonitor;
         private Dictionary<int, int> applicationDetailsIndexes;
-        private ObservableCollection<ApplicationDetails> applicationDetailsList;        
-        private DispatcherTimer timer;        
+        private ObservableCollection<ApplicationDetails> applicationDetailsList;
+        private DispatcherTimer timer;
+
+        public int HostAddressByte0 { get; set; }
+        public int HostAddressByte1 { get; set; }
+        public int HostAddressByte2 { get; set; }
+        public int HostAddressByte3 { get; set; }
+        public int HostPort { get; set; }
+
+        private bool validHostAddress;
+        private bool validHostPort;
 
         public MainWindow()
         {
             this.applicationDataSource = new LocalApplicationInfoDataSource();
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.applicationDetailsIndexes = new Dictionary<int, int>();
-            this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();            
+            this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();
+            this.HostPort = GlobalConst.DEFAULT_PORT;
 
             this.timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(GUI_REFRESH_RATE);
             timer.Tick += Timer_Tick;
-            
+
             //Initialize GUI components!
-            InitializeComponent();            
+            InitializeComponent();
+            this.DataContext = this;
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
             this.applicationDataSource.StatusChanged += this.ApplicationDataSourceStatusChangeEventHandler;
         }
@@ -59,7 +79,7 @@ namespace PdS_Project_2015_client_WPF
         }
 
         private void StartApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
-        {            
+        {
             this.applicationMonitor.Start();
             timer.Start();
         }
@@ -79,7 +99,7 @@ namespace PdS_Project_2015_client_WPF
         private void UpdateGui()
         {
             this.UpdateApplicationMontiorActiveTime();
-            this.UpdateApplicationDetailsList();            
+            this.UpdateApplicationDetailsList();
         }
 
         //update the application monitor active time
@@ -90,8 +110,8 @@ namespace PdS_Project_2015_client_WPF
 
         //update the observale list of the application details
         private void UpdateApplicationDetailsList()
-        {                        
-            
+        {
+
             //get the latest application details from the application monitor
             Dictionary<int, ApplicationDetails> applicationDetails = this.applicationMonitor.GetAllApplicationDetails();
             int i;
@@ -110,7 +130,7 @@ namespace PdS_Project_2015_client_WPF
 
             //update the indexes to the application details
             this.applicationDetailsIndexes.Clear();
-            for(i = 0; i < this.applicationDetailsList.Count; i++)
+            for (i = 0; i < this.applicationDetailsList.Count; i++)
             {
                 this.applicationDetailsIndexes.Add(this.applicationDetailsList[i].Id, i);
             }
@@ -123,7 +143,7 @@ namespace PdS_Project_2015_client_WPF
                     //insert the new opened app
                     ApplicationDetails openedApplication = entry.Value;
                     this.applicationDetailsList.Add(openedApplication);
-                    this.applicationDetailsIndexes.Add(openedApplication.Id, this.applicationDetailsList.Count - 1);                    
+                    this.applicationDetailsIndexes.Add(openedApplication.Id, this.applicationDetailsList.Count - 1);
                 }
                 else
                 {
@@ -133,13 +153,14 @@ namespace PdS_Project_2015_client_WPF
                     this.applicationDetailsList[appIndex].TimeOnFocus = entry.Value.TimeOnFocus;
                     this.applicationDetailsList[appIndex].TimeOnFocusPercentual = entry.Value.TimeOnFocusPercentual;
                 }
-            }            
+            }
         }
 
         //handle the change of status of the application data source
         private void ApplicationDataSourceStatusChangeEventHandler()
         {
-            Application.Current.Dispatcher.Invoke(new Action(() => {
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
                 if (this.applicationDataSource.Opened)
                 {
                     this.imgConnectionStatus.Source = (System.Windows.Media.Imaging.BitmapImage)System.Windows.Application.Current.FindResource("ConnectedImage");
@@ -163,11 +184,11 @@ namespace PdS_Project_2015_client_WPF
             }));
         }
 
-        private void CheckIpAddress()
+        private void HostAddressValidationErrorEventHandler(object sender, ValidationErrorEventArgs e)
         {
-            if(Int32.TryParse(tbHostAddressByte0.Text)
-            
+            this.validHostAddress = false;
         }
+        
     }
 
     public static class CustomCommands
@@ -185,5 +206,79 @@ namespace PdS_Project_2015_client_WPF
                         "Stop Application Monitor",
                         typeof(CustomCommands)
                 );
-    }    
+    }
+
+    public class StringToNumberConverter : IValueConverter
+    {
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string input = (string)value;
+            int number = Int32.Parse(input); //it should throw exception catch by the GUI            
+            return number;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            int number = (int)value;
+            if(number == 0)
+            {
+                return "";
+            }
+            else
+            {
+                return number.ToString();
+            }            
+        }
+    }
+
+    public class IpAddressByteValidationRule : ValidationRule
+    {
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            string input = (string)value;
+            if (String.IsNullOrEmpty(input))
+            {                
+                return new ValidationResult(false, "empty byte!");
+            }
+
+            int ipAddressByte;
+            if (!Int32.TryParse(input, out ipAddressByte))
+            {
+                return new ValidationResult(false, "the value typed must be an integer!");
+            }
+            
+            if(ipAddressByte < 1 || ipAddressByte > 255)
+            {
+                return new ValidationResult(false, "the integer typed must range between 1 and 255!");
+            }
+            
+            return new ValidationResult(true, null);
+        }
+    }
+
+    public class PortValidationRule : ValidationRule
+    {
+        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
+        {
+            string input = (string)value;
+            if (String.IsNullOrEmpty(input))
+            {
+                return new ValidationResult(false, "empty port value!");
+            }
+
+            int port;
+            if (!Int32.TryParse(input, out port))
+            {
+                return new ValidationResult(false, "the value typed must be an integer!");
+            }
+
+            if (port < GlobalConst.MIN_PORT || port > GlobalConst.MAX_PORT)
+            {
+                return new ValidationResult(false, "the integer typed must range between "+ GlobalConst.MIN_PORT + " and "+ GlobalConst.MAX_PORT + "!");
+            }
+
+            return new ValidationResult(true, null);
+        }
+    }
+
 }

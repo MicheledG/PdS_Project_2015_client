@@ -22,18 +22,60 @@
                         <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Setup</Run></TextBlock>
                         <Label Margin="0,5" Content="Host Address:" HorizontalAlignment="Left"></Label>
                         <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBox Name="tbHostAddressByte0" Width="40" TextAlignment="Center"></TextBox>
+                            <TextBox Name="tbHostAddressByte0" Width="40" TextAlignment="Center" Validation.Error="HostAddressValidationErrorEventHandler">
+                                <Binding Path="HostAddressByte0" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <local:IpAddressByteValidationRule/>
+                                    </Binding.ValidationRules>
+                                    <Binding.Converter>
+                                        <local:StringToNumberConverter/>
+                                    </Binding.Converter>
+                                </Binding>                                
+                            </TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                            <TextBox Name="tbHostAddressByte1" Width="40" TextAlignment="Center"></TextBox>
+                            <TextBox Name="tbHostAddressByte1" Width="40" TextAlignment="Center" Validation.Error="HostAddressValidationErrorEventHandler">
+                                <Binding Path="HostAddressByte1" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                                    <Binding.ValidationRules>
+                                        <local:IpAddressByteValidationRule/>
+                                    </Binding.ValidationRules>
+                                    <Binding.Converter>
+                                        <local:StringToNumberConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                            <TextBox Name="tbHostAddressByte2" Width="40" TextAlignment="Center"></TextBox>
+                            <TextBox Name="tbHostAddressByte2" Width="40" TextAlignment="Center">
+                                <Binding Path="HostAddressByte2" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding.ValidationRules>
+                                        <local:IpAddressByteValidationRule/>
+                                    </Binding.ValidationRules>
+                                    <Binding.Converter>
+                                        <local:StringToNumberConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                            <TextBox Name="tbHostAddressByte3" Width="40" TextAlignment="Center"></TextBox>
+                            <TextBox Name="tbHostAddressByte3" Width="40" TextAlignment="Center">
+                                <Binding Path="HostAddressByte3" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding.ValidationRules>
+                                        <local:IpAddressByteValidationRule/>
+                                    </Binding.ValidationRules>
+                                    <Binding.Converter>
+                                        <local:StringToNumberConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBox>
                         </StackPanel>
                         <Label Margin="0,5" Content="Host Port:" HorizontalAlignment="Left"></Label>
                         <WrapPanel HorizontalAlignment="Left" Margin="5,5">
-                            <TextBox Name="tbHostPort" Width="40" TextAlignment="Center"></TextBox>
-                            <TextBlock Margin="5,0,0,0">[0 - 65000]</TextBlock>
+                            <TextBox Name="tbHostPort" Width="40" TextAlignment="Center">
+                                <Binding Path="HostPort">
+                                    <Binding.Converter>
+                                        <local:StringToNumberConverter/>
+                                    </Binding.Converter>
+                                </Binding>
+                            </TextBox>
+                            <TextBlock Margin="5,0,0,0">[1 - 65000]</TextBlock>
                         </WrapPanel>
                         <WrapPanel Margin="0,30,0,0" HorizontalAlignment="Center">
                             <Button Margin="5,0,5,0"  Width="60" Command="local:CustomCommands.StartApplicationMonitor">Start</Button>
