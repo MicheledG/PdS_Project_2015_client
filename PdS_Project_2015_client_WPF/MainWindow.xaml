@@ -22,8 +22,8 @@
                         <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Setup</Run></TextBlock>
                         <Label Margin="0,5" Content="Host Address:" HorizontalAlignment="Left"></Label>
                         <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBox Name="tbHostAddressByte0" Width="40" TextAlignment="Center" Validation.Error="HostAddressValidationErrorEventHandler">
-                                <Binding Path="HostAddressByte0" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                            <TextBox Name="tbHostAddressByte0" Width="40" TextAlignment="Center">
+                                <Binding Path="HostAddressByte0" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <local:IpAddressByteValidationRule/>
                                     </Binding.ValidationRules>
@@ -33,8 +33,8 @@
                                 </Binding>                                
                             </TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
-                            <TextBox Name="tbHostAddressByte1" Width="40" TextAlignment="Center" Validation.Error="HostAddressValidationErrorEventHandler">
-                                <Binding Path="HostAddressByte1" UpdateSourceTrigger="PropertyChanged" NotifyOnValidationError="True">
+                            <TextBox Name="tbHostAddressByte1" Width="40" TextAlignment="Center">
+                                <Binding Path="HostAddressByte1" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <local:IpAddressByteValidationRule/>
                                     </Binding.ValidationRules>
@@ -69,7 +69,10 @@
                         <Label Margin="0,5" Content="Host Port:" HorizontalAlignment="Left"></Label>
                         <WrapPanel HorizontalAlignment="Left" Margin="5,5">
                             <TextBox Name="tbHostPort" Width="40" TextAlignment="Center">
-                                <Binding Path="HostPort">
+                                <Binding Path="HostPort" UpdateSourceTrigger="PropertyChanged">
+                                    <Binding.ValidationRules>
+                                        <local:PortValidationRule/>
+                                    </Binding.ValidationRules>
                                     <Binding.Converter>
                                         <local:StringToNumberConverter/>
                                     </Binding.Converter>

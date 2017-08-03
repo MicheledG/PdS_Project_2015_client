@@ -44,10 +44,7 @@ namespace PdS_Project_2015_client_WPF
         public int HostAddressByte1 { get; set; }
         public int HostAddressByte2 { get; set; }
         public int HostAddressByte3 { get; set; }
-        public int HostPort { get; set; }
-
-        private bool validHostAddress;
-        private bool validHostPort;
+        public int HostPort { get; set; }        
 
         public MainWindow()
         {
@@ -66,6 +63,7 @@ namespace PdS_Project_2015_client_WPF
             this.DataContext = this;
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
             this.applicationDataSource.StatusChanged += this.ApplicationDataSourceStatusChangeEventHandler;
+            
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -75,7 +73,19 @@ namespace PdS_Project_2015_client_WPF
 
         private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = !this.applicationMonitor.HasStarted;
+            bool canExecute = !this.applicationMonitor.HasStarted;
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte0.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte0);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte1.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte1);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte2.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte2);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte3.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte3);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostPort.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostPort);
+
+            e.CanExecute = canExecute;
         }
 
         private void StartApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
@@ -183,12 +193,7 @@ namespace PdS_Project_2015_client_WPF
                 }
             }));
         }
-
-        private void HostAddressValidationErrorEventHandler(object sender, ValidationErrorEventArgs e)
-        {
-            this.validHostAddress = false;
-        }
-        
+                
     }
 
     public static class CustomCommands
