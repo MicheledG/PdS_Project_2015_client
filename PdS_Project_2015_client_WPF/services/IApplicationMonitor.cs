@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace PdS_Project_2015_client_WPF.services
 {
     public delegate void ApplicationMonitorDataUpdatedEventHandler();
+    public delegate void ApplicationMonitorStatusChangedEventHandler();
 
     interface IApplicationMonitor
     {
@@ -16,5 +17,6 @@ namespace PdS_Project_2015_client_WPF.services
         void Stop();
         Dictionary<int, ApplicationDetails> GetAllApplicationDetails();
         event ApplicationMonitorDataUpdatedEventHandler ApplicationMonitorDataUpdated;
+        event ApplicationMonitorStatusChangedEventHandler ApplicationMonitorStatusChanged;
     }    
 }

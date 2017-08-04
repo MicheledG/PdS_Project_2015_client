@@ -80,15 +80,22 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 //detect incoming message                
                 try
-                 {
-                    //read msg from server
-                    String message = WaitMessage();
-                    if (String.IsNullOrEmpty(message))
+                 {                    
+                    if (this.stream.DataAvailable)
                     {
-                        throw new Exception("impossible to read message from server");
+                        //read msg from server
+                        string message = ReadMessage();                    
+                        if (String.IsNullOrEmpty(message))
+                        {
+                            throw new Exception("impossible to read message from server");
+                        }
+                        //notify that a message has been received
+                        this.NotifyMessageReceived(message);
                     }
-                    //notify that a message has been received
-                    this.NotifyMessageReceived(message);
+                    else
+                    {
+                        System.Threading.Thread.Yield();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -102,7 +109,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        private string WaitMessage()
+        private string ReadMessage()
         {
             try
             {

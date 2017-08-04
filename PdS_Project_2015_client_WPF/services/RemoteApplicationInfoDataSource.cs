@@ -31,6 +31,7 @@ namespace PdS_Project_2015_client_WPF.services
         public event AppClosedEventHandler AppClosed;
         public event FocusChangeEventHandler FocusChange;
         public event StatusChangedEventHandler StatusChanged;
+        public event InitialAppInfoListReadyEventHandler InitialAppInfoListReady;
 
         public RemoteApplicationInfoDataSource(IConnection remoteEndPoint)
         {
@@ -65,16 +66,25 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 else
                 {
-                    throw new KeyNotFoundException("application with id " + appId + " not found!");
+                    throw new KeyNotFoundException("application with id " + appId + " not found in data source db!");
                 }
             }
         }        
         
         public void Open()
         {
-            //handle exceptions!
-            this.remoteEndPoint.Connect();
-            this.Opened = true;
+            try
+            {
+                this.remoteEndPoint.Connect();
+                this.Opened = true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                this.Opened = false;
+                throw e;
+            }
+            
         }
 
         public void Close()
@@ -87,6 +97,10 @@ namespace PdS_Project_2015_client_WPF.services
         {
             //extract json from message
             JsonMessage jsonMsg = Newtonsoft.Json.JsonConvert.DeserializeObject<JsonMessage>(message);
+
+            //DEBUG START
+            this.PrintReceivedMessage(jsonMsg);
+            //DEBUG END
 
             String notificationString = jsonMsg.notification_event;
             if (String.IsNullOrEmpty(notificationString))
@@ -128,10 +142,10 @@ namespace PdS_Project_2015_client_WPF.services
                     }
 
                 }
-                catch (OverflowException)
+                catch (Exception e)
                 {
-                    //ignore the message
-                    return;
+                    Console.WriteLine(e.Message);
+                    this.Close();
                 }
             }
         }
@@ -145,8 +159,10 @@ namespace PdS_Project_2015_client_WPF.services
                 {
                     ApplicationInfo applicationInfo = new ApplicationInfo(appJson);
                     this.appInfoDB.Add(applicationInfo.Id, applicationInfo);
-                }
+                }                
             }
+
+            this.NotifyInitialAppListReadyEvent();
         }
 
         private void InsertOpenedAppInInfoDB(JsonApplicationInfo jsonApplicationInfo)
@@ -156,14 +172,15 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 if (!this.appInfoDB.ContainsKey(applicationInfo.Id))
                 {
-                    this.appInfoDB.Add(applicationInfo.Id, applicationInfo);
-                    this.NotifyAppOpenedEvent(applicationInfo.Id);
+                    this.appInfoDB.Add(applicationInfo.Id, applicationInfo);                    
                 }
                 else
                 {
-                    throw new Exception("impossible to add application with id " + applicationInfo.Id + ", it is already in the db");
+                    throw new Exception("impossible to add application with id " + applicationInfo.Id + ", it is already in the data source db");
                 }
             }
+
+            this.NotifyAppOpenedEvent(applicationInfo.Id);
         }
 
         private void RemoveClosedAppFromInfoDB(int appId)
@@ -172,14 +189,16 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 if (this.appInfoDB.ContainsKey(appId))
                 {
-                    this.appInfoDB.Remove(appId);
-                    this.NotifyAppClosedEvent(appId);
+                    this.appInfoDB.Remove(appId);                    
                 }
                 else
                 {
-                    throw new Exception("impossible to remove application with id " + appId + ", it is not present in the db");
+                    throw new Exception("impossible to remove application with id " + appId + ", it is not present in the data source db");
                 }
             }
+
+            this.NotifyAppClosedEvent(appId);
+
         }
 
         private void ChangeFocusInInfoDB(int previousFocusAppId, int currentFocusAppId)
@@ -189,19 +208,21 @@ namespace PdS_Project_2015_client_WPF.services
                 if (this.appInfoDB.ContainsKey(previousFocusAppId) && this.appInfoDB.ContainsKey(currentFocusAppId))
                 {
                     this.appInfoDB[previousFocusAppId].HasFocus = false;
-                    this.appInfoDB[currentFocusAppId].HasFocus = true;
-                    this.NotifyFocusChangeEvent(previousFocusAppId, currentFocusAppId);
+                    this.appInfoDB[currentFocusAppId].HasFocus = true;                    
                 }
                 else
                 {
-                    throw new Exception("impossible to update focus missing applications in the db");
+                    throw new Exception("impossible to update focus missing applications in the data source db");
                 }
             }
+
+            this.NotifyFocusChangeEvent(previousFocusAppId, currentFocusAppId);
         }
 
         private void HandleConnectionFailure(string failureDescription)
         {
             this.Opened = false;
+            //nothing else to release!!!
         }
 
         private void NotifyStatusChangedEvent()
@@ -209,6 +230,14 @@ namespace PdS_Project_2015_client_WPF.services
             if (this.StatusChanged != null)
             {
                 this.StatusChanged();
+            }
+        }
+
+        private void NotifyInitialAppListReadyEvent()
+        {
+            if (this.InitialAppInfoListReady != null)
+            {
+                this.InitialAppInfoListReady();
             }
         }
 
@@ -234,6 +263,25 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 this.FocusChange(previousFocusAppId, currentFocusAppId);
             }
+        }
+
+        //DEBUG FUNCTION!!!
+        private void PrintReceivedMessage(JsonMessage jsonMsg)
+        {
+            Console.WriteLine("==============================");
+            Console.WriteLine("Notification Event: "+jsonMsg.notification_event);
+            Console.WriteLine("App number: " + jsonMsg.app_number);
+            Console.WriteLine("Applicaiton list:");
+            foreach(JsonApplicationInfo app in jsonMsg.app_list)
+            {
+                Console.WriteLine("*********");
+                Console.WriteLine("App id: " + app.app_id);
+                Console.WriteLine("App name: " + app.app_name);
+                Console.WriteLine("App has focus: " + app.focus);
+                Console.WriteLine("App icon: " + app.icon_64);
+                Console.WriteLine("*********");
+            }
+            Console.WriteLine("==============================");
         }
 
     }

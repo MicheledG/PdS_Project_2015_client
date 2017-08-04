@@ -25,8 +25,22 @@ namespace PdS_Project_2015_client_WPF.services
 
         //to be notified on each update of the application monitor (not used till now by the GUI thread)
         public event ApplicationMonitorDataUpdatedEventHandler ApplicationMonitorDataUpdated;
+        public event ApplicationMonitorStatusChangedEventHandler ApplicationMonitorStatusChanged;
 
-        public bool HasStarted { get { return this.hasStarted; } }
+        public bool HasStarted {
+            get
+            {
+                return this.hasStarted;
+            }
+            private set
+            {
+                if(this.hasStarted != value)
+                {
+                    this.hasStarted = value;
+                    this.NotifyApplicationMonitorStatusChanged();
+                }
+            }
+        }
         public TimeSpan ActiveTime { get => activeTime; set => activeTime = value; }
 
         public ApplicationMonitor(IApplicationInfoDataSource dataSource)
@@ -49,43 +63,50 @@ namespace PdS_Project_2015_client_WPF.services
 
         private void InitializeApplicationMonitor()
         {
-            this.hasStarted = true;
+            this.HasStarted = true;
             this.startingTime = System.DateTime.Now;
-            this.lastUpdateTime = this.startingTime;            
-            
-            this.dataSource.Open();
+            this.lastUpdateTime = this.startingTime;
 
-            //populate the db with the initial information
-            List<ApplicationInfo> allApplicationInfo = dataSource.GetAllApplicationInfo();
-            lock (this.monitorLock)
+            try
             {
-                foreach (ApplicationInfo applicationInfo in allApplicationInfo)
-                {
-                    ApplicationDetails applicationDetails = new ApplicationDetails(applicationInfo);
-                    this.applicationDetailsDB.Add(applicationDetails.Id, applicationDetails);
-                }
-            
-                //subscribe the data source events
-                this.dataSource.AppOpened += this.AppOpenedEventHandler;
-                this.dataSource.AppClosed += this.AppClosedEventHandler;
-                this.dataSource.FocusChange += this.FocusChangeEventHandler;
+                this.dataSource.Open();
+            }
+            catch
+            {
+                this.DeactiveApplicationMonitor();
             }
 
+            //subscribe the data source events            
+            this.dataSource.StatusChanged += this.DataSourceStatusChangedEventHandler;
+            this.dataSource.InitialAppInfoListReady += this.InitialAppInfoListReadyEventHandler;
+            this.dataSource.AppOpened += this.AppOpenedEventHandler;
+            this.dataSource.AppClosed += this.AppClosedEventHandler;
+            this.dataSource.FocusChange += this.FocusChangeEventHandler;
+            
             this.monitorThread = new System.Threading.Thread(this.MonitorApplications);
             this.monitorThread.IsBackground = true; //usefull during application exit
             this.monitorThread.Start();
-        }
+        }        
 
         private void DeactiveApplicationMonitor()
         {
             //stop the application monitor thread
-            this.hasStarted = false;
-            this.monitorThread.Join();
+            this.HasStarted = false;
+            if(this.monitorThread != null && this.monitorThread.ThreadState.Equals(System.Threading.ThreadState.Running))
+            {
+                this.monitorThread.Join();
+                this.monitorThread = null;
+            }
 
             //close the data source (stop)
-            this.dataSource.Close();
+            if (this.dataSource.Opened)
+            {
+                this.dataSource.Close();
+            }
 
-            //unsubscribe the events of the data source
+            //unsubscribe the events of the data source            
+            this.dataSource.StatusChanged -= this.DataSourceStatusChangedEventHandler;
+            this.dataSource.InitialAppInfoListReady -= this.InitialAppInfoListReadyEventHandler;
             this.dataSource.AppOpened -= this.AppOpenedEventHandler;
             this.dataSource.AppClosed -= this.AppClosedEventHandler;
             this.dataSource.FocusChange -= this.FocusChangeEventHandler;
@@ -101,11 +122,20 @@ namespace PdS_Project_2015_client_WPF.services
             this.lastUpdateTime = System.DateTime.MinValue;
             this.activeTime = System.TimeSpan.Zero;                        
         }
-        
+
+        private void DataSourceStatusChangedEventHandler()
+        {
+            if (!this.dataSource.Opened)
+            {
+                this.HasStarted = false;
+                //this will cause the realease of the resources
+            }
+        }
+
         //Background method executed in a different thread that updates periodically the information contained into the db
         private void MonitorApplications()
         {
-            while (this.hasStarted)
+            while (this.HasStarted)
             {
                 UpdateMonitorData();
                 System.Threading.Thread.Sleep(UPDATE_RATE);
@@ -135,7 +165,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
 
             //DEBUG START!
-            this.PrintAllApplicationDetails();
+            //this.PrintAllApplicationDetails();
             //DEBUG END!
 
             this.NotifyApplicationMonitorDataUpdated();
@@ -146,6 +176,14 @@ namespace PdS_Project_2015_client_WPF.services
             if(this.ApplicationMonitorDataUpdated != null)
             {
                 this.ApplicationMonitorDataUpdated();
+            }
+        }
+
+        private void NotifyApplicationMonitorStatusChanged()
+        {
+            if(this.ApplicationMonitorStatusChanged != null)
+            {
+                this.ApplicationMonitorStatusChanged();
             }
         }
 
@@ -161,7 +199,21 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 return clone;                
             }
-        }        
+        }
+
+        //Handler called by the data source to insert the initial complete list of application info in the application monitor DB
+        private void InitialAppInfoListReadyEventHandler()
+        {
+            lock (this.monitorLock)
+            {
+                List<ApplicationInfo> allApplicationInfo = this.dataSource.GetAllApplicationInfo();
+                foreach (ApplicationInfo applicationInfo in allApplicationInfo)
+                {
+                    ApplicationDetails applicationDetails = new ApplicationDetails(applicationInfo);
+                    this.applicationDetailsDB.Add(applicationDetails.Id, applicationDetails);
+                }
+            }
+        }
 
         //Handler called by the data source to insert the new application details in the application monitor DB
         private void AppOpenedEventHandler(int appId)
@@ -176,7 +228,7 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 else
                 {
-                    throw new Exception("impossible to add application with id " + appId + ", it is already in the db");
+                    throw new Exception("impossible to add application with id " + appId + ", it is already in the monitor db");
                 }
             }
         }
@@ -192,7 +244,7 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 else
                 {
-                    throw new Exception("impossible to remove application with id " + appId + ", it is not present in the db");
+                    throw new Exception("impossible to remove application with id " + appId + ", it is not present in the monitor db");
                 }
             }            
         }
@@ -209,7 +261,7 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 else
                 {
-                    throw new Exception("impossible to update focus missing applications in the db");
+                    throw new Exception("impossible to update focus missing applications in the monitor db");
                 }
             }            
         }
@@ -229,6 +281,6 @@ namespace PdS_Project_2015_client_WPF.services
                     Console.WriteLine("==============================");
                 }
             }
-        }
+        }        
     }
 }

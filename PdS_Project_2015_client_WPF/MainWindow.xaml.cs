@@ -36,6 +36,7 @@ namespace PdS_Project_2015_client_WPF
         private const int GUI_REFRESH_RATE = 500; //ms
         private IApplicationInfoDataSource applicationDataSource;
         private IApplicationMonitor applicationMonitor;
+        private IConnection connection;
         private Dictionary<int, int> applicationDetailsIndexes;
         private ObservableCollection<ApplicationDetails> applicationDetailsList;
         private DispatcherTimer timer;
@@ -44,11 +45,12 @@ namespace PdS_Project_2015_client_WPF
         public int HostAddressByte1 { get; set; }
         public int HostAddressByte2 { get; set; }
         public int HostAddressByte3 { get; set; }
-        public int HostPort { get; set; }        
+        public int HostPort { get; set; }
 
         public MainWindow()
         {
-            this.applicationDataSource = new LocalApplicationInfoDataSource();
+            this.connection = new SocketConnection();
+            this.applicationDataSource = new RemoteApplicationInfoDataSource(this.connection);
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.applicationDetailsIndexes = new Dictionary<int, int>();
             this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();
@@ -67,8 +69,8 @@ namespace PdS_Project_2015_client_WPF
             InitializeComponent();
             this.DataContext = this;
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
-            this.applicationDataSource.StatusChanged += this.ApplicationDataSourceStatusChangeEventHandler;
-            
+            this.applicationMonitor.ApplicationMonitorStatusChanged += this.ApplicationMonitorStatusChangeEventHandler;
+
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -95,6 +97,21 @@ namespace PdS_Project_2015_client_WPF
 
         private void StartApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
         {
+            //extract the host address and the host port in the right format from the GUI
+            string hostAddress = "" + this.HostAddressByte0 + ".";
+            hostAddress += this.HostAddressByte1 + ".";
+            hostAddress += this.HostAddressByte2 + ".";
+            hostAddress += this.HostAddressByte3;
+            int hostPort = this.HostPort;
+
+            this.connection.EndPointAddress = hostAddress;
+            this.connection.EndPointPort = hostPort;
+
+            //initialize the list
+            this.applicationDetailsList.Clear();
+            this.applicationDetailsIndexes.Clear();
+
+            //let's the application monitor start
             this.applicationMonitor.Start();
             timer.Start();
         }
@@ -106,10 +123,10 @@ namespace PdS_Project_2015_client_WPF
 
         private void StopApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
         {
-            this.applicationMonitor.Stop();
             timer.Stop();
+            this.applicationMonitor.Stop();
         }
-
+    
         //update all the GUI components
         private void UpdateGui()
         {
@@ -172,11 +189,11 @@ namespace PdS_Project_2015_client_WPF
         }
 
         //handle the change of status of the application data source
-        private void ApplicationDataSourceStatusChangeEventHandler()
+        private void ApplicationMonitorStatusChangeEventHandler()
         {
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                if (this.applicationDataSource.Opened)
+                if (this.applicationMonitor.HasStarted)
                 {
                     this.imgConnectionStatus.Source = (System.Windows.Media.Imaging.BitmapImage)System.Windows.Application.Current.FindResource("ConnectedImage");
                     this.tbConnectionStatus.Text = "Connected";
@@ -234,7 +251,7 @@ namespace PdS_Project_2015_client_WPF
                 return new ValidationResult(false, "the value typed must be an integer!");
             }
             
-            if(ipAddressByte < 1 || ipAddressByte > 255)
+            if(ipAddressByte < 0 || ipAddressByte > 255)
             {
                 return new ValidationResult(false, "the integer typed must range between 1 and 255!");
             }

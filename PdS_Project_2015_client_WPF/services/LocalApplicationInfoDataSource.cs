@@ -33,6 +33,7 @@ namespace PdS_Project_2015_client_WPF.services
         public event AppClosedEventHandler AppClosed;
         public event FocusChangeEventHandler FocusChange;
         public event StatusChangedEventHandler StatusChanged;
+        public event InitialAppInfoListReadyEventHandler InitialAppInfoListReady;
 
         public LocalApplicationInfoDataSource()
         {
