@@ -3,7 +3,7 @@ using System;
 
 namespace PdS_Project_2015_client_WPF.services
 {
-    public class ApplicationInfo
+    public class ApplicationInfo : ICloneable
     {
         private int id;
         private string processName;
@@ -18,6 +18,14 @@ namespace PdS_Project_2015_client_WPF.services
         public ApplicationInfo()
         {
             this.id = -1;            
+        }
+
+        private ApplicationInfo(ApplicationInfo applicationInfo)
+        {
+            this.id = applicationInfo.Id;
+            this.processName = applicationInfo.ProcessName;
+            this.hasFocus = applicationInfo.HasFocus;            
+            this.icon64 = applicationInfo.Icon64;
         }
 
         public ApplicationInfo(JsonApplicationInfo jsonApplicationInfo)
@@ -48,5 +56,9 @@ namespace PdS_Project_2015_client_WPF.services
             return image;
         }
 
+        public object Clone()
+        {
+            return new ApplicationInfo(this);
+        }
     }
 }

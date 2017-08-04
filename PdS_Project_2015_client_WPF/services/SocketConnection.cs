@@ -93,6 +93,7 @@ namespace PdS_Project_2015_client_WPF.services
                 catch (Exception e)
                 {
                     //close the connection
+                    Console.WriteLine(e.Message);
                     this.tcpClient.Close();
                     this.tcpClient = null;
                     this.NotifyConnectionFailure(e.Message);

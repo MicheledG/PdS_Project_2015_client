@@ -28,7 +28,7 @@ namespace PdS_Project_2015_client_WPF
     {
         public const int MIN_PORT = 1;
         public const int MAX_PORT = 65000;
-        public const int DEFAULT_PORT = 27017;
+        public const int DEFAULT_PORT = 27015;
     }
 
     public partial class MainWindow : Window
@@ -52,6 +52,11 @@ namespace PdS_Project_2015_client_WPF
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.applicationDetailsIndexes = new Dictionary<int, int>();
             this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();
+            //set default value for the Host address and Host port
+            this.HostAddressByte0 = 127;
+            this.HostAddressByte1 = 0;
+            this.HostAddressByte2 = 0;
+            this.HostAddressByte3 = 1;
             this.HostPort = GlobalConst.DEFAULT_PORT;
 
             this.timer = new DispatcherTimer();
@@ -211,30 +216,7 @@ namespace PdS_Project_2015_client_WPF
                         "Stop Application Monitor",
                         typeof(CustomCommands)
                 );
-    }
-
-    public class StringToNumberConverter : IValueConverter
-    {
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            string input = (string)value;
-            int number = Int32.Parse(input); //it should throw exception catch by the GUI            
-            return number;
-        }
-
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            int number = (int)value;
-            if(number == 0)
-            {
-                return "";
-            }
-            else
-            {
-                return number.ToString();
-            }            
-        }
-    }
+    }    
 
     public class IpAddressByteValidationRule : ValidationRule
     {

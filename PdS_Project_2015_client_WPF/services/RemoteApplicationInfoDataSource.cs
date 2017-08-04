@@ -46,8 +46,13 @@ namespace PdS_Project_2015_client_WPF.services
         {
             lock (this.dbLock)
             {
-                return this.appInfoDB.Values.ToList();
-            }
+                List<ApplicationInfo> clone = new List<ApplicationInfo>();
+                foreach(ApplicationInfo applicationInfo in this.appInfoDB.Values.ToList())
+                {
+                    clone.Add((ApplicationInfo)applicationInfo.Clone());
+                }
+                return clone;
+            }            
         }
 
         public ApplicationInfo GetApplicationInfo(int appId)
@@ -56,7 +61,7 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 if (this.appInfoDB.ContainsKey(appId))
                 {
-                    return this.appInfoDB[appId];
+                    return (ApplicationInfo) this.appInfoDB[appId].Clone();
                 }
                 else
                 {

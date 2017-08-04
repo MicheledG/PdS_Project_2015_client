@@ -27,9 +27,6 @@
                                     <Binding.ValidationRules>
                                         <local:IpAddressByteValidationRule/>
                                     </Binding.ValidationRules>
-                                    <Binding.Converter>
-                                        <local:StringToNumberConverter/>
-                                    </Binding.Converter>
                                 </Binding>                                
                             </TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
@@ -38,9 +35,6 @@
                                     <Binding.ValidationRules>
                                         <local:IpAddressByteValidationRule/>
                                     </Binding.ValidationRules>
-                                    <Binding.Converter>
-                                        <local:StringToNumberConverter/>
-                                    </Binding.Converter>
                                 </Binding>
                             </TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
@@ -49,9 +43,6 @@
                                     <Binding.ValidationRules>
                                         <local:IpAddressByteValidationRule/>
                                     </Binding.ValidationRules>
-                                    <Binding.Converter>
-                                        <local:StringToNumberConverter/>
-                                    </Binding.Converter>
                                 </Binding>
                             </TextBox>
                             <TextBlock Width="3" TextAlignment="Center">.</TextBlock>
@@ -60,9 +51,6 @@
                                     <Binding.ValidationRules>
                                         <local:IpAddressByteValidationRule/>
                                     </Binding.ValidationRules>
-                                    <Binding.Converter>
-                                        <local:StringToNumberConverter/>
-                                    </Binding.Converter>
                                 </Binding>
                             </TextBox>
                         </StackPanel>
@@ -73,9 +61,6 @@
                                     <Binding.ValidationRules>
                                         <local:PortValidationRule/>
                                     </Binding.ValidationRules>
-                                    <Binding.Converter>
-                                        <local:StringToNumberConverter/>
-                                    </Binding.Converter>
                                 </Binding>
                             </TextBox>
                             <TextBlock Margin="5,0,0,0">[1 - 65000]</TextBlock>
