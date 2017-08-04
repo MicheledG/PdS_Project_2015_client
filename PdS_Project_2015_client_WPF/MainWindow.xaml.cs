@@ -24,6 +24,8 @@ namespace PdS_Project_2015_client_WPF
     /// Interaction logic for MainWindow.xaml
     /// </summary>
 
+    public delegate void FailureEventHandler(string failureDescription);
+
     public class GlobalConst
     {
         public const int MIN_PORT = 1;
@@ -69,7 +71,8 @@ namespace PdS_Project_2015_client_WPF
             InitializeComponent();
             this.DataContext = this;
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
-            this.applicationMonitor.ApplicationMonitorStatusChanged += this.ApplicationMonitorStatusChangeEventHandler;
+            this.applicationMonitor.ApplicationMonitorFailure += this.ApplicationMonitorFailureEventHandler;
+            this.applicationMonitor.PropertyChanged += this.ApplicationMonitorStatusChangeEventHandler;
 
         }
 
@@ -80,7 +83,7 @@ namespace PdS_Project_2015_client_WPF
 
         private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
         {
-            bool canExecute = !this.applicationMonitor.HasStarted;
+            bool canExecute = !this.applicationMonitor.IsActive;
             canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte0.Text);
             canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte0);
             canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte1.Text);
@@ -112,13 +115,26 @@ namespace PdS_Project_2015_client_WPF
             this.applicationDetailsIndexes.Clear();
 
             //let's the application monitor start
-            this.applicationMonitor.Start();
-            timer.Start();
+            try
+            {
+                this.applicationMonitor.Start();
+                timer.Start();
+            }
+            catch(Exception exception)
+            {
+                Console.WriteLine("Exception starting application monitor: " + exception.Message);
+                this.applicationMonitor.Stop();
+                if (this.timer.IsEnabled)
+                {
+                    this.timer.Stop();
+                }
+            }
+            
         }
 
         private void StopApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = this.applicationMonitor.HasStarted;
+            e.CanExecute = this.applicationMonitor.IsActive;
         }
 
         private void StopApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
@@ -188,12 +204,26 @@ namespace PdS_Project_2015_client_WPF
             }
         }
 
-        //handle the change of status of the application data source
-        private void ApplicationMonitorStatusChangeEventHandler()
+        //handle the failures of the application monitor
+        private void ApplicationMonitorFailureEventHandler(string failureDescription)
+        {
+            Console.WriteLine("Failure in application monitor layer: " + failureDescription);
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                this.applicationMonitor.Stop();
+                if (this.timer.IsEnabled)
+                {
+                    this.timer.Stop();
+                }
+            }));            
+        }
+
+        //handle the change of status of the application monitor
+        private void ApplicationMonitorStatusChangeEventHandler(object sender, PropertyChangedEventArgs e)
         {
             Application.Current.Dispatcher.Invoke(new Action(() =>
             {
-                if (this.applicationMonitor.HasStarted)
+                if (this.applicationMonitor.IsActive)
                 {
                     this.imgConnectionStatus.Source = (System.Windows.Media.Imaging.BitmapImage)System.Windows.Application.Current.FindResource("ConnectedImage");
                     this.tbConnectionStatus.Text = "Connected";

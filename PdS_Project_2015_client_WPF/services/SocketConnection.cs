@@ -19,38 +19,51 @@ namespace PdS_Project_2015_client_WPF.services
         public int EndPointPort { get => this.endPointPort; set => this.endPointPort = value; }
 
         public event MessageReceivedEventHandler MessageReceived;
-        public event ConnectionFailureEventHandler ConnectionFailure;
+        public event FailureEventHandler ConnectionFailure;
 
         public void Connect()
         {
-            if(String.IsNullOrEmpty(this.endPointAddress) || endPointPort == 0)
+            if (!this.active)
             {
-                throw new Exception("endpoint address or endpoint port not set");
-            }
-        
-            //connect to server socket
-            this.tcpClient = new System.Net.Sockets.TcpClient(this.endPointAddress, this.endPointPort);
-            this.stream = tcpClient.GetStream();
-            this.active = true;
+                this.active = true;
 
-            //let's start the background thread that handle the socket connection
-            this.connectionThread = new System.Threading.Thread(this.ManageConnection);
-            this.connectionThread.IsBackground = true;
-            this.connectionThread.Start();
+                if (String.IsNullOrEmpty(this.endPointAddress) || endPointPort == 0)
+                {
+                    throw new Exception("endpoint address or endpoint port not set");
+                }
+
+                //connect to server socket
+                this.tcpClient = new System.Net.Sockets.TcpClient(this.endPointAddress, this.endPointPort);
+                this.stream = tcpClient.GetStream();
+
+                //let's start the background thread that handle the socket connection
+                this.connectionThread = new System.Threading.Thread(this.ManageConnection);
+                this.connectionThread.IsBackground = true;
+                this.connectionThread.Start();
+            }
+            else
+            {
+                throw new Exception("cannot connect, the connection is already active!");
+            }
         }
 
         public void Disconnect()
         {
-            if(this.connectionThread != null)
+            if (this.active)
             {
                 this.active = false;
-                this.connectionThread.Join();
-                this.connectionThread = null;                
-            }
-            if(this.tcpClient != null)
-            {
-                this.tcpClient.Close();
-            }
+                if (this.connectionThread != null && this.connectionThread.ThreadState == System.Threading.ThreadState.Running)
+                {
+                    this.connectionThread.Join();
+                    this.connectionThread = null;
+                }
+
+                if (this.tcpClient != null)
+                {
+                    this.tcpClient.Close();
+                    this.tcpClient = null;
+                }
+            }            
         }
 
         public void SendMessage(string message)
@@ -80,7 +93,8 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 //detect incoming message                
                 try
-                 {                    
+                 {
+                    this.checkConnectionStatus();
                     if (this.stream.DataAvailable)
                     {
                         //read msg from server
@@ -98,15 +112,17 @@ namespace PdS_Project_2015_client_WPF.services
                     }
                 }
                 catch (Exception e)
-                {
-                    //close the connection
-                    Console.WriteLine(e.Message);
-                    this.tcpClient.Close();
-                    this.tcpClient = null;
+                {   
+                    //the thread will die soon
                     this.NotifyConnectionFailure(e.Message);
                     break;
                 }
             }
+        }
+
+        private void checkConnectionStatus()
+        {
+            this.stream.WriteByte(0);
         }
 
         private string ReadMessage()

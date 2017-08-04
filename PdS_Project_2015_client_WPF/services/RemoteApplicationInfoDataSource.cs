@@ -14,24 +14,13 @@ namespace PdS_Project_2015_client_WPF.services
         private IConnection remoteEndPoint;
         private bool opened;
 
-        public bool Opened
-        {
-            get => this.opened;
-            set
-            {
-                if (this.opened != value)
-                {
-                    this.opened = value;
-                    this.NotifyStatusChangedEvent();
-                }
-            }
-        }
-
+        public bool Opened { get => this.opened; }
+        public event FailureEventHandler DataSourceFailure;
         public event AppOpenedEventHandler AppOpened;
         public event AppClosedEventHandler AppClosed;
-        public event FocusChangeEventHandler FocusChange;
-        public event StatusChangedEventHandler StatusChanged;
+        public event FocusChangeEventHandler FocusChange;        
         public event InitialAppInfoListReadyEventHandler InitialAppInfoListReady;
+        
 
         public RemoteApplicationInfoDataSource(IConnection remoteEndPoint)
         {
@@ -66,53 +55,54 @@ namespace PdS_Project_2015_client_WPF.services
                 }
                 else
                 {
-                    throw new KeyNotFoundException("application with id " + appId + " not found in data source db!");
+                    throw new Exception("application with id " + appId + " not found in data source db!");
                 }
             }
         }        
         
         public void Open()
         {
-            try
+            if (!this.opened)
             {
+                this.opened = true;
                 this.remoteEndPoint.Connect();
-                this.Opened = true;
             }
-            catch(Exception e)
+            else
             {
-                Console.WriteLine(e.Message);
-                this.Opened = false;
-                throw e;
+                throw new Exception("cannot open data source, the data source is already opened!");
             }
-            
+                                                    
         }
 
         public void Close()
         {
-            this.Opened = false;
-            this.remoteEndPoint.Disconnect();
+            if (this.opened)
+            {                
+                this.remoteEndPoint.Disconnect();
+                this.opened = false;
+            }            
         }
      
         private void HandleMessage(string message)
         {
-            //extract json from message
-            JsonMessage jsonMsg = Newtonsoft.Json.JsonConvert.DeserializeObject<JsonMessage>(message);
-
-            //DEBUG START
-            this.PrintReceivedMessage(jsonMsg);
-            //DEBUG END
-
-            String notificationString = jsonMsg.notification_event;
-            if (String.IsNullOrEmpty(notificationString))
+            try
             {
-                //it is the initial complete list of apps                                
-                this.PopulateAppInfoDB(jsonMsg.app_list);                
-            }
-            else
-            {
-                //it is a notification message
-                try
+                //extract json from message
+                JsonMessage jsonMsg = Newtonsoft.Json.JsonConvert.DeserializeObject<JsonMessage>(message);
+
+                //DEBUG START
+                this.PrintReceivedMessage(jsonMsg);
+                //DEBUG END
+
+                String notificationString = jsonMsg.notification_event;
+                if (String.IsNullOrEmpty(notificationString))
                 {
+                    //it is the initial complete list of apps                                
+                    this.PopulateAppInfoDB(jsonMsg.app_list);
+                }
+                else
+                {
+                    //it is a notification message                
                     //act depending on the notification type
                     JsonMessage.NotificationEvent notificationEvent = (JsonMessage.NotificationEvent)Enum.Parse(typeof(JsonMessage.NotificationEvent), notificationString);
                     switch (notificationEvent)
@@ -121,13 +111,13 @@ namespace PdS_Project_2015_client_WPF.services
                             //extract the opened app from the message
                             JsonApplicationInfo jsonApplicationInfo = jsonMsg.app_list[0];
                             //insert the new opened app into the db
-                            this.InsertOpenedAppInInfoDB(jsonApplicationInfo);                                                                                    
+                            this.InsertOpenedAppInInfoDB(jsonApplicationInfo);
                             break;
                         case JsonMessage.NotificationEvent.APP_DESTROY:
                             //extract the closed app id from the message
                             int appId = jsonMsg.app_list[0].app_id;
                             //remove the closed application from the db
-                            this.RemoveClosedAppFromInfoDB(appId);                            
+                            this.RemoveClosedAppFromInfoDB(appId);
                             break;
                         case JsonMessage.NotificationEvent.APP_FOCUS:
                             //extract the id of the previous app with focus
@@ -135,19 +125,17 @@ namespace PdS_Project_2015_client_WPF.services
                             //extract the id of the current app with focus
                             int currentFocusAppId = jsonMsg.app_list[1].app_id;
                             //update the two application info
-                            this.ChangeFocusInInfoDB(previousFocusAppId, currentFocusAppId);                            
+                            this.ChangeFocusInInfoDB(previousFocusAppId, currentFocusAppId);
                             break;
                         default:
                             break;
                     }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    this.Close();
                 }
             }
+            catch (Exception e)
+            {
+                this.NotifyDataSourceFailureEvent(e.Message);
+            }            
         }
         
         private void PopulateAppInfoDB(List<JsonApplicationInfo> jsonApplicationInfoList)
@@ -221,15 +209,15 @@ namespace PdS_Project_2015_client_WPF.services
 
         private void HandleConnectionFailure(string failureDescription)
         {
-            this.Opened = false;
-            //nothing else to release!!!
+            Console.WriteLine("Failure in connection layer: " + failureDescription);
+            this.NotifyDataSourceFailureEvent(failureDescription);
         }
 
-        private void NotifyStatusChangedEvent()
+        private void NotifyDataSourceFailureEvent(string failureDescription)
         {
-            if (this.StatusChanged != null)
+            if (this.DataSourceFailure != null)
             {
-                this.StatusChanged();
+                this.DataSourceFailure(failureDescription);
             }
         }
 

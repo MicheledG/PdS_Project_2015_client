@@ -2,8 +2,7 @@
 using System.ComponentModel;
 
 namespace PdS_Project_2015_client_WPF.services
-{
-    public delegate void StatusChangedEventHandler();
+{    
     public delegate void InitialAppInfoListReadyEventHandler();
     public delegate void AppOpenedEventHandler(int appId);
     public delegate void AppClosedEventHandler(int appId);
@@ -14,7 +13,7 @@ namespace PdS_Project_2015_client_WPF.services
         void Open();
         void Close();
         bool Opened { get; }
-        event StatusChangedEventHandler StatusChanged;        
+        event FailureEventHandler DataSourceFailure;        
         List<ApplicationInfo> GetAllApplicationInfo();
         ApplicationInfo GetApplicationInfo(int appId);
         event InitialAppInfoListReadyEventHandler InitialAppInfoListReady;

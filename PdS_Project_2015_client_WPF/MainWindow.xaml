@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PdS_Project_2015_client_WPF"
         mc:Ignorable="d"
-        Title="MainWindow" d:DesignWidth="741" d:DesignHeight="658">
+        Title="MainWindow">
     <Window.CommandBindings>
         <CommandBinding Command="local:CustomCommands.StartApplicationMonitor" CanExecute="StartApplicationMonitor_CanExecute" Executed="StartApplicationMonitor_Executed"/>
         <CommandBinding Command="local:CustomCommands.StopApplicationMonitor" CanExecute="StopApplicationMonitor_CanExecute" Executed="StopApplicationMonitor_Executed"/>

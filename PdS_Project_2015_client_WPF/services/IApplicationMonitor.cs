@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace PdS_Project_2015_client_WPF.services
-{
-    public delegate void ApplicationMonitorDataUpdatedEventHandler();
-    public delegate void ApplicationMonitorStatusChangedEventHandler();
-
-    interface IApplicationMonitor
+{    
+    
+    interface IApplicationMonitor : INotifyPropertyChanged
     {
-        bool HasStarted { get; }
+        bool IsActive { get; }
         System.TimeSpan ActiveTime { get; }
         void Start();
         void Stop();
         Dictionary<int, ApplicationDetails> GetAllApplicationDetails();
-        event ApplicationMonitorDataUpdatedEventHandler ApplicationMonitorDataUpdated;
-        event ApplicationMonitorStatusChangedEventHandler ApplicationMonitorStatusChanged;
+        event FailureEventHandler ApplicationMonitorFailure;        
     }    
 }

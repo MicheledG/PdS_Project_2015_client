@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace PdS_Project_2015_client_WPF.services
 {
-    public delegate void MessageReceivedEventHandler(string message);
-    public delegate void ConnectionFailureEventHandler(string failureDescription);
+    public delegate void MessageReceivedEventHandler(string message);    
 
     interface IConnection
     {
@@ -17,6 +16,6 @@ namespace PdS_Project_2015_client_WPF.services
         void Disconnect();
         void SendMessage(string message);
         event MessageReceivedEventHandler MessageReceived;
-        event ConnectionFailureEventHandler ConnectionFailure;
+        event FailureEventHandler ConnectionFailure;
     }
 }

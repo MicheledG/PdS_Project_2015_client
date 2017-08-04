@@ -23,17 +23,16 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 if(this.opened != value)
                 {
-                    this.opened = value;
-                    this.NotifyStatusChangedEvent();                    
+                    this.opened = value;                                   
                 }
             }
         }        
 
         public event AppOpenedEventHandler AppOpened;
         public event AppClosedEventHandler AppClosed;
-        public event FocusChangeEventHandler FocusChange;
-        public event StatusChangedEventHandler StatusChanged;
+        public event FocusChangeEventHandler FocusChange;        
         public event InitialAppInfoListReadyEventHandler InitialAppInfoListReady;
+        public event FailureEventHandler DataSourceFailure;
 
         public LocalApplicationInfoDataSource()
         {
@@ -71,15 +70,7 @@ namespace PdS_Project_2015_client_WPF.services
                     throw new KeyNotFoundException("application with id " + appId + " not found!");
                 }
             }            
-        }
-
-        private void NotifyStatusChangedEvent()
-        {
-            if (this.StatusChanged != null)
-            {
-                this.StatusChanged();
-            }
-        }
+        }        
 
         private void NotifyAppOpenedEvent(int appId)
         {
