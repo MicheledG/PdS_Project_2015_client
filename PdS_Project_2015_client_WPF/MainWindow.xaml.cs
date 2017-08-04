@@ -123,6 +123,7 @@ namespace PdS_Project_2015_client_WPF
             catch(Exception exception)
             {
                 Console.WriteLine("Exception starting application monitor: " + exception.Message);
+                MessageBox.Show("Exception starting application monitor: " + exception.Message, "Failure", MessageBoxButton.OK, MessageBoxImage.Error);                
                 this.applicationMonitor.Stop();
                 if (this.timer.IsEnabled)
                 {
@@ -138,11 +139,11 @@ namespace PdS_Project_2015_client_WPF
         }
 
         private void StopApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
-        {
-            timer.Stop();
+        {            
             this.applicationMonitor.Stop();
+            timer.Stop();
         }
-    
+
         //update all the GUI components
         private void UpdateGui()
         {
@@ -215,6 +216,7 @@ namespace PdS_Project_2015_client_WPF
                 {
                     this.timer.Stop();
                 }
+                MessageBox.Show("Failure in application monitor layer: " + failureDescription, "Failure", MessageBoxButton.OK, MessageBoxImage.Error);                
             }));            
         }
 
@@ -243,7 +245,8 @@ namespace PdS_Project_2015_client_WPF
                     this.tbHostAddressByte3.IsEnabled = true;
                     this.tbHostPort.IsEnabled = true;
                 }
-            }));
+                CommandManager.InvalidateRequerySuggested();
+            }));            
         }
                 
     }
