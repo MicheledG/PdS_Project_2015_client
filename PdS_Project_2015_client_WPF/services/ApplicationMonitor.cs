@@ -9,7 +9,7 @@ namespace PdS_Project_2015_client_WPF.services
 {
     class ApplicationMonitor : IApplicationMonitor
     {
-        private const int UPDATE_RATE = 500; //ms
+        private const int UPDATE_RATE = 100; //ms
 
         private bool active;
         private System.DateTime startingTime;        
@@ -79,7 +79,7 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 //stop the application monitor thread
                 this.IsActive = false;
-                if (this.monitorThread != null && this.monitorThread.ThreadState == System.Threading.ThreadState.Running)
+                if (this.monitorThread != null && this.monitorThread.IsAlive)
                 {
                     this.monitorThread.Join();
                     this.monitorThread = null;
@@ -96,8 +96,10 @@ namespace PdS_Project_2015_client_WPF.services
             while (this.IsActive)
             {
                 UpdateMonitorData();
-                System.Threading.Thread.Sleep(UPDATE_RATE);
+                System.Threading.Thread.Sleep(UPDATE_RATE);                
             }
+
+            Console.WriteLine("Application monitor thread says:'Bye Bye :-)'");
         }
 
         //This method is called periodically by the monitor thread

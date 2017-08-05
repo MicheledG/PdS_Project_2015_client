@@ -8,6 +8,8 @@ namespace PdS_Project_2015_client_WPF.services
 {
     class SocketConnection : IConnection
     {
+        private const int CHECK_MESSAGE_RATE = 100; //ms
+
         private string endPointAddress;
         private int endPointPort;
         private System.Net.Sockets.TcpClient tcpClient;
@@ -52,7 +54,7 @@ namespace PdS_Project_2015_client_WPF.services
             if (this.active)
             {
                 this.active = false;
-                if (this.connectionThread != null && this.connectionThread.ThreadState == System.Threading.ThreadState.Running)
+                if (this.connectionThread != null && this.connectionThread.IsAlive)
                 {
                     this.connectionThread.Join();
                     this.connectionThread = null;
@@ -107,8 +109,8 @@ namespace PdS_Project_2015_client_WPF.services
                         this.NotifyMessageReceived(message);
                     }
                     else
-                    {
-                        System.Threading.Thread.Yield();
+                    {                        
+                        System.Threading.Thread.Sleep(CHECK_MESSAGE_RATE);
                     }
                 }
                 catch (Exception e)
@@ -118,6 +120,8 @@ namespace PdS_Project_2015_client_WPF.services
                     break;
                 }
             }
+
+            Console.WriteLine("Socket connection thread says:'Bye Bye :-)'");
         }
 
         private void checkConnectionStatus()

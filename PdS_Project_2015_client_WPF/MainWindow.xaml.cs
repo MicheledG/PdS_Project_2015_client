@@ -209,7 +209,7 @@ namespace PdS_Project_2015_client_WPF
         private void ApplicationMonitorFailureEventHandler(string failureDescription)
         {
             Console.WriteLine("Failure in application monitor layer: " + failureDescription);
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.applicationMonitor.Stop();
                 if (this.timer.IsEnabled)
@@ -223,7 +223,7 @@ namespace PdS_Project_2015_client_WPF
         //handle the change of status of the application monitor
         private void ApplicationMonitorStatusChangeEventHandler(object sender, PropertyChangedEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (this.applicationMonitor.IsActive)
                 {
@@ -245,6 +245,8 @@ namespace PdS_Project_2015_client_WPF
                     this.tbHostAddressByte3.IsEnabled = true;
                     this.tbHostPort.IsEnabled = true;
                 }
+
+                //to update button status
                 CommandManager.InvalidateRequerySuggested();
             }));            
         }
