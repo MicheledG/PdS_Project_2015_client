@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Windows;
 
 namespace PdS_Project_2015_client_WPF.services
 {
@@ -29,7 +30,11 @@ namespace PdS_Project_2015_client_WPF.services
             this.hasFocus = applicationInfo.HasFocus;
             this.timeOnFocus = System.TimeSpan.Zero;
             this.timeOnFocusPercentual = 0;
-            this.Icon = applicationInfo.fromBase64ToImage();
+            //need to do this action in GUI thread because BitmapImages are bad boys
+            Application.Current.Dispatcher.Invoke(new Action(() =>
+            {
+                this.Icon = this.fromBase64ToImage(applicationInfo.Icon64);                
+            }));            
         }
 
         public int Id {
@@ -108,6 +113,26 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private System.Windows.Media.Imaging.BitmapImage fromBase64ToImage(string imageBase64)
+        {
+            System.Windows.Media.Imaging.BitmapImage image;
+            try
+            {
+                image = new System.Windows.Media.Imaging.BitmapImage();
+                byte[] data = System.Convert.FromBase64String(imageBase64);
+                var stream = new System.IO.MemoryStream(data, 0, data.Length);
+                image = new System.Windows.Media.Imaging.BitmapImage();
+                image.BeginInit();
+                image.StreamSource = stream;
+                image.EndInit();
+            }
+            catch (System.Exception)
+            {
+                image = (System.Windows.Media.Imaging.BitmapImage)System.Windows.Application.Current.FindResource("MissingIconImage");
+            }
+            return image;
         }
     }
 }

@@ -88,13 +88,22 @@
             </StackPanel>
             <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10" Height="500" VerticalAlignment="Top">
                 <ListView Name="lvApplicationDetails" Height="500" HorizontalAlignment="Stretch">
+                    <ListView.Resources>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasFocus}" Value="True">
+                                    <Setter Property="Background" Value="LightSkyBlue" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.Resources>
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Process" Width="300">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <WrapPanel>
-                                            <!--<Image Margin="2" Width="24" Source="{Binding Icon}"/>-->
+                                            <Image Margin="2" Width="24" Source="{Binding Icon}"/>
                                             <TextBlock VerticalAlignment="Center" Text="{Binding ProcessName}"/>
                                         </WrapPanel>
                                     </DataTemplate>

@@ -47,7 +47,7 @@ namespace PdS_Project_2015_client_WPF
         public int HostAddressByte1 { get; set; }
         public int HostAddressByte2 { get; set; }
         public int HostAddressByte3 { get; set; }
-        public int HostPort { get; set; }
+        public int HostPort { get; set; }        
 
         public MainWindow()
         {
@@ -190,7 +190,7 @@ namespace PdS_Project_2015_client_WPF
                 if (!this.applicationDetailsIndexes.ContainsKey(entry.Key))
                 {
                     //insert the new opened app
-                    ApplicationDetails openedApplication = entry.Value;
+                    ApplicationDetails openedApplication = entry.Value;                    
                     this.applicationDetailsList.Add(openedApplication);
                     this.applicationDetailsIndexes.Add(openedApplication.Id, this.applicationDetailsList.Count - 1);
                 }
@@ -203,6 +203,7 @@ namespace PdS_Project_2015_client_WPF
                     this.applicationDetailsList[appIndex].TimeOnFocusPercentual = entry.Value.TimeOnFocusPercentual;
                 }
             }
+            
         }
 
         //handle the failures of the application monitor
