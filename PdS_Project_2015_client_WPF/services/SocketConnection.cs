@@ -16,12 +16,18 @@ namespace PdS_Project_2015_client_WPF.services
         private System.Net.Sockets.NetworkStream stream;
         private System.Threading.Thread connectionThread;
         private bool active;
+        private object socketLock;
 
         public string EndPointAddress { get => this.endPointAddress; set => this.endPointAddress = value; }
         public int EndPointPort { get => this.endPointPort; set => this.endPointPort = value; }
 
         public event MessageReceivedEventHandler MessageReceived;
         public event FailureEventHandler ConnectionFailure;
+
+        public SocketConnection()
+        {
+            this.socketLock = new object();
+        }
 
         public void Connect()
         {
@@ -70,7 +76,22 @@ namespace PdS_Project_2015_client_WPF.services
 
         public void SendMessage(string message)
         {
-            throw new NotImplementedException();
+            byte[] buffer = Encoding.ASCII.GetBytes(message);
+            int N = buffer.Count();
+
+            try
+            {
+                lock (this.socketLock)
+                {
+                    this.stream.Write(buffer, 0, N);
+                }                                
+            }
+            catch(Exception e)
+            {
+                this.NotifyConnectionFailure(e.Message);
+            }
+
+
         }
 
         private void NotifyConnectionFailure(string failureDescription)
@@ -95,7 +116,7 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 //detect incoming message                
                 try
-                 {
+                 {                    
                     this.checkConnectionStatus();
                     if (this.stream.DataAvailable)
                     {
@@ -126,7 +147,10 @@ namespace PdS_Project_2015_client_WPF.services
 
         private void checkConnectionStatus()
         {
-            this.stream.WriteByte(0);
+            lock (this.socketLock)
+            {
+                this.stream.WriteByte(0);
+            }            
         }
 
         private string ReadMessage()
@@ -156,25 +180,27 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         private byte[] ReadNBytes(int N)
-        {
+        {            
             byte[] buffer = new byte[N];
             try
             {
-                int totReadBytes = 0;
-                while (totReadBytes < N)
+                lock (this.socketLock)
                 {
-                    int readBytes = this.stream.Read(buffer, totReadBytes, N);
-                    if (readBytes == 0)
-                        return null;
-                    totReadBytes += readBytes;
-                }
+                    int totReadBytes = 0;
+                    while (totReadBytes < N)
+                    {
+                        int readBytes = this.stream.Read(buffer, totReadBytes, N);
+                        if (readBytes == 0)
+                            return null;
+                        totReadBytes += readBytes;
+                    }
+                }                
                 return buffer;
-
             }
             catch (Exception)
             {
                 return null;
             }
-        }
+        }        
     }
 }

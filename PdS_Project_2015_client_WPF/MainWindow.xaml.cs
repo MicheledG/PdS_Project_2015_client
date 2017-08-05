@@ -42,6 +42,7 @@ namespace PdS_Project_2015_client_WPF
         private Dictionary<int, int> applicationDetailsIndexes;
         private ObservableCollection<ApplicationDetails> applicationDetailsList;
         private DispatcherTimer timer;
+        private HashSet<Key> pressedKeys;
 
         public int HostAddressByte0 { get; set; }
         public int HostAddressByte1 { get; set; }
@@ -56,6 +57,7 @@ namespace PdS_Project_2015_client_WPF
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.applicationDetailsIndexes = new Dictionary<int, int>();
             this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();
+            this.pressedKeys = new HashSet<Key>();
             //set default value for the Host address and Host port
             this.HostAddressByte0 = 127;
             this.HostAddressByte1 = 0;
@@ -251,7 +253,51 @@ namespace PdS_Project_2015_client_WPF
                 CommandManager.InvalidateRequerySuggested();
             }));            
         }
-                
+
+        private void HandleKeyDown(KeyEventArgs e)
+        {
+            e.Handled = true;
+            Key pressedKey = (e.Key == Key.System ? e.SystemKey : e.Key);
+            if (!this.pressedKeys.Contains(pressedKey))
+            {
+                Console.WriteLine("Key pressed: " + pressedKey);
+                if (this.tbSendKeys.Text.Length > 0)
+                {
+                    this.tbSendKeys.AppendText(" + ");
+                }
+                this.tbSendKeys.AppendText(pressedKey + " (DOWN)");
+                this.pressedKeys.Add(pressedKey);                
+            }
+        }
+
+        private void tbSendKeys_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            this.HandleKeyDown(e);
+        }
+
+        private void tbSendKeys_KeyDown(object sender, KeyEventArgs e)
+        {
+            this.HandleKeyDown(e);
+        }
+
+        private void tbSendKeys_KeyUp(object sender, KeyEventArgs e)
+        {
+            Key releasedKey = (e.Key == Key.System ? e.SystemKey : e.Key);
+            Console.WriteLine("Key released: " + releasedKey);
+            if (this.tbSendKeys.Text.Length > 0)
+            {
+                this.tbSendKeys.AppendText(" + ");
+            }
+            this.tbSendKeys.AppendText(releasedKey + " (UP)");
+            this.pressedKeys.Remove(releasedKey);            
+        }
+        
+        private void btnCancelKeys_Click(object sender, RoutedEventArgs e)
+        {
+            this.tbSendKeys.Clear();
+            this.pressedKeys.Clear();
+        }
+        
     }
 
     public static class CustomCommands

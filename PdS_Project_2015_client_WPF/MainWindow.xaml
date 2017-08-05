@@ -137,9 +137,11 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="70"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" HorizontalAlignment="Stretch" Margin="5,5"/>
-                    <Button Grid.Column="1" Width="60" Margin="5,5" HorizontalAlignment="Right">Send</Button>
+                    <TextBox Name="tbSendKeys" Grid.Column="0" HorizontalAlignment="Stretch" Margin="5,5" KeyDown="tbSendKeys_KeyDown" KeyUp="tbSendKeys_KeyUp" PreviewKeyDown="tbSendKeys_PreviewKeyDown"/>
+                    <Button Name="btnSendKeys" Grid.Column="1" Width="60" Margin="5,5" HorizontalAlignment="Right">Send</Button>
+                    <Button Name="btnCancelKeys" Grid.Column="2" Width="60" Margin="5,5" HorizontalAlignment="Right" Click="btnCancelKeys_Click">Cancel</Button>
                 </Grid>
             </StackPanel>
         </Border>
