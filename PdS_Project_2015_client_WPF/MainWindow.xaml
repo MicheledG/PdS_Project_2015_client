@@ -12,8 +12,12 @@
         <CommandBinding Command="local:CustomCommands.SendKeys" CanExecute="SendKeys_CanExecute" Executed="SendKeys_Executed"/>
         <CommandBinding Command="local:CustomCommands.CancelKeys" CanExecute="CancelKeys_CanExecute" Executed="CancelKeys_Executed"/>
     </Window.CommandBindings>
-    <StackPanel>
-        <Grid>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="150"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="*"/>
@@ -88,8 +92,8 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
-            <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10" Height="500" VerticalAlignment="Top">
-                <ListView Name="lvApplicationDetails" Height="500" HorizontalAlignment="Stretch">
+            <Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Margin="10" VerticalAlignment="Top">
+                <ListView Name="lvApplicationDetails" HorizontalAlignment="Stretch">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <Style.Triggers>
@@ -132,7 +136,7 @@
                 </ListView>
             </Border>
         </Grid>
-        <Border BorderBrush="Gray" BorderThickness="1" Margin="10" Height="100">
+        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Margin="10" Height="100">
             <StackPanel>
                 <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Send Keys</Run></TextBlock>
                 <Grid>
@@ -147,5 +151,5 @@
                 </Grid>
             </StackPanel>
         </Border>
-    </StackPanel>
+    </Grid>
 </Window>
