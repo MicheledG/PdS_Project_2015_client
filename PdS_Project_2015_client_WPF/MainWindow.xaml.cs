@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Globalization;
 using System.ComponentModel;
+using PdS_Project_2015_client_WPF.model;
 
 namespace PdS_Project_2015_client_WPF
 {
@@ -39,10 +40,10 @@ namespace PdS_Project_2015_client_WPF
         private IApplicationInfoDataSource applicationDataSource;
         private IApplicationMonitor applicationMonitor;
         private IConnection connection;
+        private IKeysSender keysSender;
         private Dictionary<int, int> applicationDetailsIndexes;
         private ObservableCollection<ApplicationDetails> applicationDetailsList;
-        private DispatcherTimer timer;
-        private HashSet<Key> pressedKeys;
+        private DispatcherTimer timer;        
 
         public int HostAddressByte0 { get; set; }
         public int HostAddressByte1 { get; set; }
@@ -55,9 +56,10 @@ namespace PdS_Project_2015_client_WPF
             this.connection = new SocketConnection();
             this.applicationDataSource = new RemoteApplicationInfoDataSource(this.connection);
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
+            this.keysSender = new KeysSender(this.connection);
             this.applicationDetailsIndexes = new Dictionary<int, int>();
             this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();
-            this.pressedKeys = new HashSet<Key>();
+            
             //set default value for the Host address and Host port
             this.HostAddressByte0 = 127;
             this.HostAddressByte1 = 0;
@@ -75,77 +77,15 @@ namespace PdS_Project_2015_client_WPF
             this.lvApplicationDetails.ItemsSource = this.applicationDetailsList;
             this.applicationMonitor.ApplicationMonitorFailure += this.ApplicationMonitorFailureEventHandler;
             this.applicationMonitor.PropertyChanged += this.ApplicationMonitorStatusChangeEventHandler;
-
+            this.keysSender.NewKeyInShortcut += this.KeysSenderNewKeyInShortcutEventHandler;
+            this.tbSendKeys.IsEnabled = false;
         }
-
+        
         private void Timer_Tick(object sender, EventArgs e)
         {
             this.UpdateGui();
         }
-
-        private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
-        {
-            bool canExecute = !this.applicationMonitor.IsActive;
-            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte0.Text);
-            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte0);
-            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte1.Text);
-            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte1);
-            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte2.Text);
-            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte2);
-            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte3.Text);
-            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte3);
-            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostPort.Text);
-            canExecute = canExecute && !Validation.GetHasError(this.tbHostPort);
-
-            e.CanExecute = canExecute;
-        }
-
-        private void StartApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
-        {
-            //extract the host address and the host port in the right format from the GUI
-            string hostAddress = "" + this.HostAddressByte0 + ".";
-            hostAddress += this.HostAddressByte1 + ".";
-            hostAddress += this.HostAddressByte2 + ".";
-            hostAddress += this.HostAddressByte3;
-            int hostPort = this.HostPort;
-
-            this.connection.EndPointAddress = hostAddress;
-            this.connection.EndPointPort = hostPort;
-
-            //initialize the list
-            this.applicationDetailsList.Clear();
-            this.applicationDetailsIndexes.Clear();
-
-            //let's the application monitor start
-            try
-            {
-                this.applicationMonitor.Start();
-                timer.Start();
-            }
-            catch(Exception exception)
-            {
-                Console.WriteLine("Exception starting application monitor: " + exception.Message);
-                MessageBox.Show("Exception starting application monitor: " + exception.Message, "Failure", MessageBoxButton.OK, MessageBoxImage.Error);                
-                this.applicationMonitor.Stop();
-                if (this.timer.IsEnabled)
-                {
-                    this.timer.Stop();
-                }
-            }
-            
-        }
-
-        private void StopApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
-        {
-            e.CanExecute = this.applicationMonitor.IsActive;
-        }
-
-        private void StopApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
-        {            
-            this.applicationMonitor.Stop();
-            timer.Stop();
-        }
-
+        
         //update all the GUI components
         private void UpdateGui()
         {
@@ -237,6 +177,7 @@ namespace PdS_Project_2015_client_WPF
                     this.tbHostAddressByte2.IsEnabled = false;
                     this.tbHostAddressByte3.IsEnabled = false;
                     this.tbHostPort.IsEnabled = false;
+                    this.tbSendKeys.IsEnabled = true;
                 }
                 else
                 {
@@ -247,55 +188,142 @@ namespace PdS_Project_2015_client_WPF
                     this.tbHostAddressByte2.IsEnabled = true;
                     this.tbHostAddressByte3.IsEnabled = true;
                     this.tbHostPort.IsEnabled = true;
+                    this.tbSendKeys.IsEnabled = false;
                 }
 
                 //to update button status
                 CommandManager.InvalidateRequerySuggested();
             }));            
         }
-
-        private void HandleKeyDown(KeyEventArgs e)
-        {
-            e.Handled = true;
-            Key pressedKey = (e.Key == Key.System ? e.SystemKey : e.Key);
-            if (!this.pressedKeys.Contains(pressedKey))
-            {
-                Console.WriteLine("Key pressed: " + pressedKey);
-                if (this.tbSendKeys.Text.Length > 0)
-                {
-                    this.tbSendKeys.AppendText(" + ");
-                }
-                this.tbSendKeys.AppendText(pressedKey + " (DOWN)");
-                this.pressedKeys.Add(pressedKey);                
-            }
-        }
-
+        
         private void tbSendKeys_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            this.HandleKeyDown(e);
+            this.keysSender.HandleKeyDown(e);
         }
 
         private void tbSendKeys_KeyDown(object sender, KeyEventArgs e)
         {
-            this.HandleKeyDown(e);
+            this.keysSender.HandleKeyDown(e);
         }
 
         private void tbSendKeys_KeyUp(object sender, KeyEventArgs e)
         {
-            Key releasedKey = (e.Key == Key.System ? e.SystemKey : e.Key);
-            Console.WriteLine("Key released: " + releasedKey);
+            this.keysSender.HandleKeyUp(e);           
+        }
+
+        //shows in the GUI the shortcut beeing created
+        private void KeysSenderNewKeyInShortcutEventHandler(KeyAndAction keyAndAction)
+        {
             if (this.tbSendKeys.Text.Length > 0)
             {
-                this.tbSendKeys.AppendText(" + ");
+                this.tbSendKeys.AppendText(" +");
             }
-            this.tbSendKeys.AppendText(releasedKey + " (UP)");
-            this.pressedKeys.Remove(releasedKey);            
+
+            this.tbSendKeys.AppendText(" " + keyAndAction.Key);
+
+            if (keyAndAction.IsDown)
+            {
+                this.tbSendKeys.AppendText(" (DOWN)");
+            }
+            else
+            {
+                this.tbSendKeys.AppendText(" (UP)");
+            }
         }
-        
-        private void btnCancelKeys_Click(object sender, RoutedEventArgs e)
+
+        private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
+        {
+            bool canExecute = !this.applicationMonitor.IsActive;
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte0.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte0);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte1.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte1);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte2.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte2);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostAddressByte3.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostAddressByte3);
+            canExecute = canExecute && !String.IsNullOrEmpty(this.tbHostPort.Text);
+            canExecute = canExecute && !Validation.GetHasError(this.tbHostPort);
+
+            e.CanExecute = canExecute;
+        }
+
+        private void StartApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
+        {
+            //extract the host address and the host port in the right format from the GUI
+            string hostAddress = "" + this.HostAddressByte0 + ".";
+            hostAddress += this.HostAddressByte1 + ".";
+            hostAddress += this.HostAddressByte2 + ".";
+            hostAddress += this.HostAddressByte3;
+            int hostPort = this.HostPort;
+
+            this.connection.EndPointAddress = hostAddress;
+            this.connection.EndPointPort = hostPort;
+
+            //initialize the list
+            this.applicationDetailsList.Clear();
+            this.applicationDetailsIndexes.Clear();
+
+            //let's the application monitor start
+            try
+            {
+                this.applicationMonitor.Start();
+                timer.Start();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("Exception starting application monitor: " + exception.Message);
+                MessageBox.Show("Exception starting application monitor: " + exception.Message, "Failure", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.applicationMonitor.Stop();
+                if (this.timer.IsEnabled)
+                {
+                    this.timer.Stop();
+                }
+            }
+
+        }
+
+        private void StopApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = this.applicationMonitor.IsActive;
+        }
+
+        private void StopApplicationMonitor_Executed(Object sender, ExecutedRoutedEventArgs e)
+        {
+            this.applicationMonitor.Stop();
+            timer.Stop();
+        }
+
+        private void SendKeys_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = this.keysSender.IsShortcutSendable && this.applicationMonitor.IsActive;            
+        }
+
+        private void SendKeys_Executed(Object sender, ExecutedRoutedEventArgs e)
         {
             this.tbSendKeys.Clear();
-            this.pressedKeys.Clear();
+
+            try
+            {
+                this.keysSender.Send();
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("Exception sending key shortcut: " + exception.Message, "Exception", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            this.keysSender.Clear();
+        }
+
+        private void CancelKeys_CanExecute(Object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = this.keysSender.IsShortcutSendable && this.applicationMonitor.IsActive;
+        }
+
+        private void CancelKeys_Executed(Object sender, ExecutedRoutedEventArgs e)
+        {
+            this.tbSendKeys.Clear();
+            this.keysSender.Clear();
         }
         
     }
@@ -315,6 +343,19 @@ namespace PdS_Project_2015_client_WPF
                         "Stop Application Monitor",
                         typeof(CustomCommands)
                 );
+        public static readonly RoutedUICommand SendKeys = new RoutedUICommand
+                (
+                        "Send Keys",
+                        "Send Keys",
+                        typeof(CustomCommands)
+                );
+        public static readonly RoutedUICommand CancelKeys = new RoutedUICommand
+                (
+                        "Cancel Keys",
+                        "Cancel Keys",
+                        typeof(CustomCommands)
+                );
+
     }    
 
     public class IpAddressByteValidationRule : ValidationRule

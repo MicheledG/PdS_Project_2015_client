@@ -5,10 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PdS_Project_2015_client_WPF"
         mc:Ignorable="d"
-        Title="MainWindow">
+        Title="MainWindow" Height="673" Width="920">
     <Window.CommandBindings>
         <CommandBinding Command="local:CustomCommands.StartApplicationMonitor" CanExecute="StartApplicationMonitor_CanExecute" Executed="StartApplicationMonitor_Executed"/>
         <CommandBinding Command="local:CustomCommands.StopApplicationMonitor" CanExecute="StopApplicationMonitor_CanExecute" Executed="StopApplicationMonitor_Executed"/>
+        <CommandBinding Command="local:CustomCommands.SendKeys" CanExecute="SendKeys_CanExecute" Executed="SendKeys_Executed"/>
+        <CommandBinding Command="local:CustomCommands.CancelKeys" CanExecute="CancelKeys_CanExecute" Executed="CancelKeys_Executed"/>
     </Window.CommandBindings>
     <StackPanel>
         <Grid>
@@ -140,8 +142,8 @@
                         <ColumnDefinition Width="70"/>
                     </Grid.ColumnDefinitions>
                     <TextBox Name="tbSendKeys" Grid.Column="0" HorizontalAlignment="Stretch" Margin="5,5" KeyDown="tbSendKeys_KeyDown" KeyUp="tbSendKeys_KeyUp" PreviewKeyDown="tbSendKeys_PreviewKeyDown"/>
-                    <Button Name="btnSendKeys" Grid.Column="1" Width="60" Margin="5,5" HorizontalAlignment="Right">Send</Button>
-                    <Button Name="btnCancelKeys" Grid.Column="2" Width="60" Margin="5,5" HorizontalAlignment="Right" Click="btnCancelKeys_Click">Cancel</Button>
+                    <Button Name="btnSendKeys" Grid.Column="1" Width="60" Margin="5,5" HorizontalAlignment="Right" Command="local:CustomCommands.SendKeys">Send</Button>
+                    <Button Name="btnCancelKeys" Grid.Column="2" Width="60" Margin="5,5" HorizontalAlignment="Right" Command="local:CustomCommands.CancelKeys">Cancel</Button>
                 </Grid>
             </StackPanel>
         </Border>

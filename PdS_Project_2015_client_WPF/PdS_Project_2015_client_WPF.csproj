@@ -62,10 +62,13 @@
     <Compile Include="model\ApplicationDetails.cs" />
     <Compile Include="model\json\JsonApplicationInfo.cs" />
     <Compile Include="model\json\JsonMessage.cs" />
+    <Compile Include="model\KeyAndAction.cs" />
     <Compile Include="services\ApplicationMonitor.cs" />
     <Compile Include="services\IApplicationInfoDataSource.cs" />
     <Compile Include="services\IApplicationMonitor.cs" />
     <Compile Include="services\IConnection.cs" />
+    <Compile Include="services\IKeysSender.cs" />
+    <Compile Include="services\KeysSender.cs" />
     <Compile Include="services\LocalApplicationInfoDataSource.cs" />
     <Compile Include="services\RemoteApplicationInfoDataSource.cs" />
     <Compile Include="services\SocketConnection.cs" />
