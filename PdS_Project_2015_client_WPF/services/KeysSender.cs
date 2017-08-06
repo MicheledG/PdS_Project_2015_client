@@ -1,4 +1,5 @@
 ﻿using PdS_Project_2015_client_WPF.model;
+using PdS_Project_2015_client_WPF.model.json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +47,8 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 Console.WriteLine("Key pressed: " + pressedKey);                
                 this.pressedKeys.Add(pressedKey);
-                KeyAndAction keyAndAction = new KeyAndAction() { Key = pressedKey, IsDown = true };
+                int virtualCode = KeyInterop.VirtualKeyFromKey(pressedKey);
+                KeyAndAction keyAndAction = new KeyAndAction() { Key = pressedKey, VirtualCode=virtualCode, IsDown = true };
                 this.keyShortcut.Add(keyAndAction);
                 this.NotifyNewKeyInShortcut(keyAndAction);
             }            
@@ -60,7 +62,8 @@ namespace PdS_Project_2015_client_WPF.services
             {
                 Console.WriteLine("Key released: " + releasedKey);
                 this.pressedKeys.Remove(releasedKey);
-                KeyAndAction keyAndAction = new KeyAndAction() { Key = releasedKey, IsDown = false };
+                int virtualCode = KeyInterop.VirtualKeyFromKey(releasedKey);
+                KeyAndAction keyAndAction = new KeyAndAction() { Key = releasedKey, VirtualCode = virtualCode, IsDown = false };                
                 this.keyShortcut.Add(keyAndAction);
                 this.NotifyNewKeyInShortcut(keyAndAction);
             }            
@@ -68,11 +71,30 @@ namespace PdS_Project_2015_client_WPF.services
 
         public void Send()
         {
-            //it assumed that the connection is already opened and connected!!!
+            //WARNING: it assumed that the connection is already opened and connected!!!
+
             //create the message
-            //translate to string
+            List<JsonKeyShortcutAction> shortcutActions = new List<JsonKeyShortcutAction>();
+            foreach (KeyAndAction keyAndAction in this.keyShortcut)
+            {
+                JsonKeyShortcutAction jsonShortcutAction = new JsonKeyShortcutAction()
+                {
+                    key_virtual_code = keyAndAction.VirtualCode,
+                    is_down = keyAndAction.IsDown                    
+                };
+                shortcutActions.Add(jsonShortcutAction);
+            }
+            JsonKeyShortcutMessage jsonKeyShortcutMessage = new JsonKeyShortcutMessage()
+            {
+                shortcut_actions_number = shortcutActions.Count,
+                shortcut_actions = shortcutActions
+            };
+
+            //translate to string                        
+            string messageToSend = Newtonsoft.Json.JsonConvert.SerializeObject((object)jsonKeyShortcutMessage);
+
             //use connection Send method
-            throw new NotImplementedException();
+            this.connection.SendMessage(messageToSend);
         }
 
         public void Clear()

@@ -207,7 +207,7 @@ namespace PdS_Project_2015_client_WPF
         }
 
         private void tbSendKeys_KeyUp(object sender, KeyEventArgs e)
-        {
+        {            
             this.keysSender.HandleKeyUp(e);           
         }
 
@@ -228,7 +228,7 @@ namespace PdS_Project_2015_client_WPF
             else
             {
                 this.tbSendKeys.AppendText(" (UP)");
-            }
+            }            
         }
 
         private void StartApplicationMonitor_CanExecute(Object sender, CanExecuteRoutedEventArgs e)

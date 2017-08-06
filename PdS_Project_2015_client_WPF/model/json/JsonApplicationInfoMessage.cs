@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace PdS_Project_2015_client_WPF.model.json
 {
     
-    public class JsonMessage
+    public class JsonApplicationInfoMessage
     {
         public List<JsonApplicationInfo> app_list { get; set; }
         public int app_number { get; set; }

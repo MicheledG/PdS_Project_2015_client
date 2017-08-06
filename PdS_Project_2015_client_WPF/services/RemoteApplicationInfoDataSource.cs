@@ -88,7 +88,7 @@ namespace PdS_Project_2015_client_WPF.services
             try
             {
                 //extract json from message
-                JsonMessage jsonMsg = Newtonsoft.Json.JsonConvert.DeserializeObject<JsonMessage>(message);
+                JsonApplicationInfoMessage jsonMsg = Newtonsoft.Json.JsonConvert.DeserializeObject<JsonApplicationInfoMessage>(message);
 
                 //DEBUG START
                 this.PrintReceivedMessage(jsonMsg);
@@ -104,22 +104,22 @@ namespace PdS_Project_2015_client_WPF.services
                 {
                     //it is a notification message                
                     //act depending on the notification type
-                    JsonMessage.NotificationEvent notificationEvent = (JsonMessage.NotificationEvent)Enum.Parse(typeof(JsonMessage.NotificationEvent), notificationString);
+                    JsonApplicationInfoMessage.NotificationEvent notificationEvent = (JsonApplicationInfoMessage.NotificationEvent)Enum.Parse(typeof(JsonApplicationInfoMessage.NotificationEvent), notificationString);
                     switch (notificationEvent)
                     {
-                        case JsonMessage.NotificationEvent.APP_CREATE:
+                        case JsonApplicationInfoMessage.NotificationEvent.APP_CREATE:
                             //extract the opened app from the message
                             JsonApplicationInfo jsonApplicationInfo = jsonMsg.app_list[0];
                             //insert the new opened app into the db
                             this.InsertOpenedAppInInfoDB(jsonApplicationInfo);
                             break;
-                        case JsonMessage.NotificationEvent.APP_DESTROY:
+                        case JsonApplicationInfoMessage.NotificationEvent.APP_DESTROY:
                             //extract the closed app id from the message
                             int appId = jsonMsg.app_list[0].app_id;
                             //remove the closed application from the db
                             this.RemoveClosedAppFromInfoDB(appId);
                             break;
-                        case JsonMessage.NotificationEvent.APP_FOCUS:
+                        case JsonApplicationInfoMessage.NotificationEvent.APP_FOCUS:
                             //extract the id of the previous app with focus
                             int previousFocusAppId = jsonMsg.app_list[0].app_id;
                             //extract the id of the current app with focus
@@ -254,7 +254,7 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         //DEBUG FUNCTION!!!
-        private void PrintReceivedMessage(JsonMessage jsonMsg)
+        private void PrintReceivedMessage(JsonApplicationInfoMessage jsonMsg)
         {
             Console.WriteLine("==============================");
             Console.WriteLine("Notification Event: "+jsonMsg.notification_event);

@@ -61,7 +61,9 @@
     <Compile Include="model\ApplicationInfo.cs" />
     <Compile Include="model\ApplicationDetails.cs" />
     <Compile Include="model\json\JsonApplicationInfo.cs" />
-    <Compile Include="model\json\JsonMessage.cs" />
+    <Compile Include="model\json\JsonApplicationInfoMessage.cs" />
+    <Compile Include="model\json\JsonKeyShortcutAction.cs" />
+    <Compile Include="model\json\JsonKeyShortcutMessage.cs" />
     <Compile Include="model\KeyAndAction.cs" />
     <Compile Include="services\ApplicationMonitor.cs" />
     <Compile Include="services\IApplicationInfoDataSource.cs" />
