@@ -219,18 +219,24 @@ namespace PdS_Project_2015_client_WPF.services
         private void FocusChangeEventHandler(int previousFocusAppId, int currentFocusAppId)
         {
             try
-            {
+            {                
                 lock (this.monitorLock)
                 {
-                    if (this.applicationDetailsDB.ContainsKey(previousFocusAppId) && this.applicationDetailsDB.ContainsKey(currentFocusAppId))
+                    //if the previous app with focus is in the db yet, change its status
+                    if (this.applicationDetailsDB.ContainsKey(previousFocusAppId))
                     {
                         this.applicationDetailsDB[previousFocusAppId].HasFocus = false;
+                    }
+
+                    //update the new app with focus
+                    if (this.applicationDetailsDB.ContainsKey(currentFocusAppId))
+                    {
                         this.applicationDetailsDB[currentFocusAppId].HasFocus = true;
                     }
                     else
                     {
-                        throw new Exception("impossible to update focus missing applications in the monitor db");
-                    }
+                        throw new Exception("impossible to update focus: missing the current focus application in the application monitor db");
+                    }                                       
                 }
             }
             catch (Exception e)

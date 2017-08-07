@@ -193,15 +193,21 @@ namespace PdS_Project_2015_client_WPF.services
         {
             lock (this.dbLock)
             {
-                if (this.appInfoDB.ContainsKey(previousFocusAppId) && this.appInfoDB.ContainsKey(currentFocusAppId))
+                //if the previous app with focus is in the db yet, change its status
+                if (this.appInfoDB.ContainsKey(previousFocusAppId))
                 {
                     this.appInfoDB[previousFocusAppId].HasFocus = false;
-                    this.appInfoDB[currentFocusAppId].HasFocus = true;                    
+                }
+
+                //update the new app with focus
+                if (this.appInfoDB.ContainsKey(currentFocusAppId))
+                {
+                    this.appInfoDB[currentFocusAppId].HasFocus = true;
                 }
                 else
                 {
-                    throw new Exception("impossible to update focus missing applications in the data source db");
-                }
+                    throw new Exception("impossible to update focus: missing the current focus application in the data source db");
+                }                                
             }
 
             this.NotifyFocusChangeEvent(previousFocusAppId, currentFocusAppId);

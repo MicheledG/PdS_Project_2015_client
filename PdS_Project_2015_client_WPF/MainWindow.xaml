@@ -28,7 +28,7 @@
                         <TextBlock Margin="5,5" TextAlignment="Left"><Run FontSize="18">Connection Setup</Run></TextBlock>
                         <Label Margin="0,5" Content="Host Address:" HorizontalAlignment="Left"></Label>
                         <StackPanel Margin="0,5" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBox Name="tbHostAddressByte0" Width="40" TextAlignment="Center" IsEnabled="{Binding }">
+                            <TextBox Name="tbHostAddressByte0" Width="40" TextAlignment="Center">
                                 <Binding Path="HostAddressByte0" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <local:IpAddressByteValidationRule/>
