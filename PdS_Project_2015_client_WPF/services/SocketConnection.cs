@@ -130,7 +130,14 @@ namespace PdS_Project_2015_client_WPF.services
                         string message = ReadMessage();                    
                         if (String.IsNullOrEmpty(message))
                         {
-                            throw new Exception("impossible to read message from server");
+                            if(message == null) {
+                                throw new Exception("impossible to read message from server");
+                            }
+                            else
+                            {
+                                //message with no body sent by the server, continue!
+                                continue;
+                            }
                         }
                         //notify that a message has been received
                         this.NotifyMessageReceived(message);
@@ -165,14 +172,21 @@ namespace PdS_Project_2015_client_WPF.services
         private string ReadMessage()
         {
             try
-            {
+            {                                            
                 //read message length
                 byte[] msgLen = ReadNBytes(sizeof(Int32));
                 if (msgLen == null)
                 {
                     return null;
-                }                    
+                }
                 Int32 iMsgLen = BitConverter.ToInt32(msgLen, 0);
+                    
+                if(iMsgLen == 0)
+                {
+                    //empty string to indicate empty message body
+                    return "";
+                }
+                                
                 //read message
                 byte[] msg = ReadNBytes(iMsgLen);
                 if (msg == null)

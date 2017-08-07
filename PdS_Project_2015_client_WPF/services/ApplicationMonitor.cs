@@ -124,10 +124,7 @@ namespace PdS_Project_2015_client_WPF.services
                         
                 this.lastUpdateTime = updateTime;
             }
-
-            ////DEBUG START!
-            //this.PrintAllApplicationDetails();
-            ////DEBUG END!            
+    
         }
                 
         public Dictionary<int, ApplicationDetails> GetAllApplicationDetails()
