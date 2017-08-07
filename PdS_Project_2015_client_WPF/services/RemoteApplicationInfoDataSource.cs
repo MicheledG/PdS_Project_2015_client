@@ -10,7 +10,7 @@ namespace PdS_Project_2015_client_WPF.services
     class RemoteApplicationInfoDataSource : IApplicationInfoDataSource
     {        
         private Object dbLock;
-        private Dictionary<int, ApplicationInfo> appInfoDB;
+        private Dictionary<Int64, ApplicationInfo> appInfoDB;
         private IConnection remoteEndPoint;
         private bool opened;
 
@@ -24,7 +24,7 @@ namespace PdS_Project_2015_client_WPF.services
 
         public RemoteApplicationInfoDataSource(IConnection remoteEndPoint)
         {
-            this.appInfoDB = new Dictionary<int, ApplicationInfo>();
+            this.appInfoDB = new Dictionary<Int64, ApplicationInfo>();
             this.dbLock = new Object();
             this.opened = false;
             this.remoteEndPoint = remoteEndPoint;
@@ -45,7 +45,7 @@ namespace PdS_Project_2015_client_WPF.services
             }            
         }
 
-        public ApplicationInfo GetApplicationInfo(int appId)
+        public ApplicationInfo GetApplicationInfo(Int64 appId)
         {
             lock (this.dbLock)
             {
@@ -115,15 +115,15 @@ namespace PdS_Project_2015_client_WPF.services
                             break;
                         case JsonApplicationInfoMessage.NotificationEvent.APP_DESTROY:
                             //extract the closed app id from the message
-                            int appId = jsonMsg.app_list[0].app_id;
+                            Int64 appId = jsonMsg.app_list[0].app_id;
                             //remove the closed application from the db
                             this.RemoveClosedAppFromInfoDB(appId);
                             break;
                         case JsonApplicationInfoMessage.NotificationEvent.APP_FOCUS:
                             //extract the id of the previous app with focus
-                            int previousFocusAppId = jsonMsg.app_list[0].app_id;
+                            Int64 previousFocusAppId = jsonMsg.app_list[0].app_id;
                             //extract the id of the current app with focus
-                            int currentFocusAppId = jsonMsg.app_list[1].app_id;
+                            Int64 currentFocusAppId = jsonMsg.app_list[1].app_id;
                             //update the two application info
                             this.ChangeFocusInInfoDB(previousFocusAppId, currentFocusAppId);
                             break;
@@ -171,7 +171,7 @@ namespace PdS_Project_2015_client_WPF.services
             this.NotifyAppOpenedEvent(applicationInfo.Id);
         }
 
-        private void RemoveClosedAppFromInfoDB(int appId)
+        private void RemoveClosedAppFromInfoDB(Int64 appId)
         {            
             lock (this.dbLock)
             {
@@ -189,7 +189,7 @@ namespace PdS_Project_2015_client_WPF.services
 
         }
 
-        private void ChangeFocusInInfoDB(int previousFocusAppId, int currentFocusAppId)
+        private void ChangeFocusInInfoDB(Int64 previousFocusAppId, Int64 currentFocusAppId)
         {
             lock (this.dbLock)
             {
@@ -235,7 +235,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        private void NotifyAppOpenedEvent(int appId)
+        private void NotifyAppOpenedEvent(Int64 appId)
         {
             if (this.AppOpened != null)
             {
@@ -243,7 +243,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        private void NotifyAppClosedEvent(int appId)
+        private void NotifyAppClosedEvent(Int64 appId)
         {
             if (this.AppClosed != null)
             {
@@ -251,7 +251,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        private void NotifyFocusChangeEvent(int previousFocusAppId, int currentFocusAppId)
+        private void NotifyFocusChangeEvent(Int64 previousFocusAppId, Int64 currentFocusAppId)
         {
             if (this.FocusChange != null)
             {

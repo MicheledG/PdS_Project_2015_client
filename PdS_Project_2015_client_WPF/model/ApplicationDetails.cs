@@ -7,7 +7,8 @@ namespace PdS_Project_2015_client_WPF.services
 {
     public class ApplicationDetails : INotifyPropertyChanged, ICloneable
     {
-        private int id;
+        private Int64 id;
+        private Int64 processId;
         private string processName;
         private bool hasFocus;
         private System.TimeSpan timeOnFocus;
@@ -16,6 +17,7 @@ namespace PdS_Project_2015_client_WPF.services
 
         private ApplicationDetails(ApplicationDetails applicationDetails) {
             this.id = applicationDetails.Id;
+            this.processId = applicationDetails.ProcessId;
             this.processName = applicationDetails.ProcessName;
             this.hasFocus = applicationDetails.HasFocus;
             this.timeOnFocus = applicationDetails.TimeOnFocus;
@@ -26,6 +28,7 @@ namespace PdS_Project_2015_client_WPF.services
         public ApplicationDetails(ApplicationInfo applicationInfo)
         {
             this.id = applicationInfo.Id;
+            this.processId = applicationInfo.ProcessId;
             this.processName = applicationInfo.ProcessName;
             this.hasFocus = applicationInfo.HasFocus;
             this.timeOnFocus = System.TimeSpan.Zero;
@@ -37,7 +40,7 @@ namespace PdS_Project_2015_client_WPF.services
             }));            
         }
 
-        public int Id {
+        public Int64 Id {
             get => id;
             set
             {
@@ -46,6 +49,19 @@ namespace PdS_Project_2015_client_WPF.services
                     id = value;
                     this.NotifyPropertyChanged("Id");
                 }                
+            }
+        }
+
+        public Int64 ProcessId
+        {
+            get => processId;
+            set
+            {
+                if (this.processId != value)
+                {
+                    processId = value;
+                    this.NotifyPropertyChanged("ProcessId");
+                }
             }
         }
 
@@ -98,7 +114,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        public System.Windows.Media.Imaging.BitmapImage Icon { get => icon; set => icon = value; }
+        public System.Windows.Media.Imaging.BitmapImage Icon { get => icon; set => icon = value; }        
 
         public event PropertyChangedEventHandler PropertyChanged;
 

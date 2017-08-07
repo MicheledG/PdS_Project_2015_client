@@ -14,7 +14,7 @@ namespace PdS_Project_2015_client_WPF.services
         System.TimeSpan ActiveTime { get; }
         void Start();
         void Stop();
-        Dictionary<int, ApplicationDetails> GetAllApplicationDetails();
+        Dictionary<Int64, ApplicationDetails> GetAllApplicationDetails();
         event FailureEventHandler ApplicationMonitorFailure;        
     }    
 }

@@ -19,7 +19,7 @@ namespace PdS_Project_2015_client_WPF.services
         //protects all the data accessible from different thread (dued to Event handlers, GUI thread and background thread)
         private Object monitorLock;
         private IApplicationInfoDataSource dataSource;
-        private Dictionary<int, ApplicationDetails> applicationDetailsDB;
+        private Dictionary<Int64, ApplicationDetails> applicationDetailsDB;
                
         public event FailureEventHandler ApplicationMonitorFailure;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -40,7 +40,7 @@ namespace PdS_Project_2015_client_WPF.services
         public ApplicationMonitor(IApplicationInfoDataSource dataSource)
         {
             this.IsActive = false;
-            this.applicationDetailsDB = new Dictionary<int, ApplicationDetails>();
+            this.applicationDetailsDB = new Dictionary<Int64, ApplicationDetails>();
             this.monitorLock = new Object();
             this.dataSource = dataSource;
             this.dataSource.DataSourceFailure += this.DataSourceFailureEventHandler;
@@ -111,7 +111,7 @@ namespace PdS_Project_2015_client_WPF.services
                 System.DateTime updateTime = System.DateTime.Now;
                 this.activeTime = updateTime - this.startingTime;
             
-                foreach (KeyValuePair<int, ApplicationDetails> dbEntry in this.applicationDetailsDB)
+                foreach (KeyValuePair<Int64, ApplicationDetails> dbEntry in this.applicationDetailsDB)
                 {
                     if (dbEntry.Value.HasFocus)
                     {
@@ -127,13 +127,13 @@ namespace PdS_Project_2015_client_WPF.services
     
         }
                 
-        public Dictionary<int, ApplicationDetails> GetAllApplicationDetails()
+        public Dictionary<Int64, ApplicationDetails> GetAllApplicationDetails()
         {
             lock (this.monitorLock)
             {
                 //clone the db wit a deep copy
-                Dictionary<int, ApplicationDetails> clone = new Dictionary<int, ApplicationDetails>();
-                foreach (KeyValuePair<int, ApplicationDetails> originalEntry in this.applicationDetailsDB)
+                Dictionary<Int64, ApplicationDetails> clone = new Dictionary<Int64, ApplicationDetails>();
+                foreach (KeyValuePair<Int64, ApplicationDetails> originalEntry in this.applicationDetailsDB)
                 {
                     clone.Add(originalEntry.Key, (ApplicationDetails) originalEntry.Value.Clone());
                 }
@@ -164,7 +164,7 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         //Handler called by the data source to insert the new application details in the application monitor DB
-        private void AppOpenedEventHandler(int appId)
+        private void AppOpenedEventHandler(Int64 appId)
         {
             try
             {
@@ -189,7 +189,7 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         //Handler called by anyone to remove the details of a closed application from the Monitor DB
-        private void AppClosedEventHandler(int appId)
+        private void AppClosedEventHandler(Int64 appId)
         {
             try
             {
@@ -213,7 +213,7 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         //Handler called by anyone to update the application which holds the focus
-        private void FocusChangeEventHandler(int previousFocusAppId, int currentFocusAppId)
+        private void FocusChangeEventHandler(Int64 previousFocusAppId, Int64 currentFocusAppId)
         {
             try
             {                
@@ -264,7 +264,7 @@ namespace PdS_Project_2015_client_WPF.services
         {
             lock (this.monitorLock)
             {
-                foreach (KeyValuePair<int, ApplicationDetails> dbEntry in this.applicationDetailsDB)
+                foreach (KeyValuePair<Int64, ApplicationDetails> dbEntry in this.applicationDetailsDB)
                 {
                     Console.WriteLine("==============================");
                     Console.WriteLine("Application id: " + dbEntry.Value.Id);

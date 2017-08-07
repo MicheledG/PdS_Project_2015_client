@@ -11,7 +11,7 @@ namespace PdS_Project_2015_client_WPF.services
     {
 
         private Object dbLock;
-        private Dictionary<int, ApplicationInfo> appInfoDB;
+        private Dictionary<Int64, ApplicationInfo> appInfoDB;
         private int focusIndex;
 
         private bool opened;
@@ -36,7 +36,7 @@ namespace PdS_Project_2015_client_WPF.services
 
         public LocalApplicationInfoDataSource()
         {
-            this.appInfoDB = new Dictionary<int, ApplicationInfo>();
+            this.appInfoDB = new Dictionary<Int64, ApplicationInfo>();
             this.dbLock = new Object();
             this.opened = false;
             
@@ -57,7 +57,7 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         
-        public ApplicationInfo GetApplicationInfo(int appId)
+        public ApplicationInfo GetApplicationInfo(Int64 appId)
         {
             lock (this.dbLock)
             {
@@ -72,7 +72,7 @@ namespace PdS_Project_2015_client_WPF.services
             }            
         }        
 
-        private void NotifyAppOpenedEvent(int appId)
+        private void NotifyAppOpenedEvent(Int64 appId)
         {
             if(this.AppOpened != null)
             {
@@ -80,7 +80,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        private void NotifyAppClosedEvent(int appId)
+        private void NotifyAppClosedEvent(Int64 appId)
         {
             if (this.AppClosed != null)
             {
@@ -88,7 +88,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        private void NotifyFocusChangeEvent(int previousFocusAppId, int currentFocusAppId)
+        private void NotifyFocusChangeEvent(Int64 previousFocusAppId, Int64 currentFocusAppId)
         {
             if (this.FocusChange != null)
             {
@@ -98,8 +98,8 @@ namespace PdS_Project_2015_client_WPF.services
 
         private void UpdatingDataSource()
         {
-            int previousFocusAppId;
-            int currentFocusAppId;
+            Int64 previousFocusAppId;
+            Int64 currentFocusAppId;
 
             while (this.opened)
             {
@@ -138,7 +138,7 @@ namespace PdS_Project_2015_client_WPF.services
 
                 //remove a random application                
                 int randomIndex = randomKeyGenerator.Next(1, this.appInfoDB.Count);
-                int randomKey = this.appInfoDB.ElementAt(randomIndex).Key;
+                Int64 randomKey = this.appInfoDB.ElementAt(randomIndex).Key;
                 this.appInfoDB.Remove(randomKey);
                 this.NotifyAppClosedEvent(randomKey);
                 System.Threading.Thread.Sleep(1000);

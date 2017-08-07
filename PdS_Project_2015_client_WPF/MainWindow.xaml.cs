@@ -41,7 +41,7 @@ namespace PdS_Project_2015_client_WPF
         private IApplicationMonitor applicationMonitor;
         private IConnection connection;
         private IKeysSender keysSender;
-        private Dictionary<int, int> applicationDetailsIndexes;
+        private Dictionary<Int64, int> applicationDetailsIndexes;
         private ObservableCollection<ApplicationDetails> applicationDetailsList;
         private DispatcherTimer timer;        
 
@@ -57,7 +57,7 @@ namespace PdS_Project_2015_client_WPF
             this.applicationDataSource = new RemoteApplicationInfoDataSource(this.connection);
             this.applicationMonitor = new ApplicationMonitor(this.applicationDataSource);
             this.keysSender = new KeysSender(this.connection);
-            this.applicationDetailsIndexes = new Dictionary<int, int>();
+            this.applicationDetailsIndexes = new Dictionary<Int64, int>();
             this.applicationDetailsList = new ObservableCollection<ApplicationDetails>();
             
             //set default value for the Host address and Host port
@@ -104,13 +104,13 @@ namespace PdS_Project_2015_client_WPF
         {
 
             //get the latest application details from the application monitor
-            Dictionary<int, ApplicationDetails> applicationDetails = this.applicationMonitor.GetAllApplicationDetails();
+            Dictionary<Int64, ApplicationDetails> applicationDetails = this.applicationMonitor.GetAllApplicationDetails();
             int i;
 
             //remove the closed apps from the application details shown in the GUI 
             for (i = 0; i < this.applicationDetailsIndexes.Count; i++)
             {
-                KeyValuePair<int, int> indexEntry = this.applicationDetailsIndexes.ElementAt(i);
+                KeyValuePair<Int64, int> indexEntry = this.applicationDetailsIndexes.ElementAt(i);
                 if (!applicationDetails.ContainsKey(indexEntry.Key))
                 {
                     this.applicationDetailsList.RemoveAt(indexEntry.Value);
@@ -127,7 +127,7 @@ namespace PdS_Project_2015_client_WPF
             }
 
             //enqueue the new opened apps in the application details shown in the GUI and update the details of all the other application
-            foreach (KeyValuePair<int, ApplicationDetails> entry in applicationDetails)
+            foreach (KeyValuePair<Int64, ApplicationDetails> entry in applicationDetails)
             {
                 if (!this.applicationDetailsIndexes.ContainsKey(entry.Key))
                 {

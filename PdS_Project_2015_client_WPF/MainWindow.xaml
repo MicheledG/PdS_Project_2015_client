@@ -115,7 +115,7 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="PID" Width="100" DisplayMemberBinding="{Binding Id}"/>
+                            <GridViewColumn Header="PID" Width="100" DisplayMemberBinding="{Binding ProcessId}"/>
                             <GridViewColumn Header="On Focus" Width="100" DisplayMemberBinding="{Binding HasFocus}"/>
                             <GridViewColumn Header="Focus time" Width="200">
                                 <GridViewColumn.CellTemplate>
