@@ -75,14 +75,20 @@ namespace PdS_Project_2015_client_WPF.services
         }
 
         public void SendMessage(string message)
-        {
-            byte[] buffer = Encoding.ASCII.GetBytes(message);
-            int N = buffer.Count();
-
+        {            
             try
             {
                 lock (this.socketLock)
                 {
+                    //translate the message from string to bytes
+                    byte[] buffer = Encoding.ASCII.GetBytes(message);
+                    int N = buffer.Count();
+                    byte[] messageLength = BitConverter.GetBytes(N);
+
+                    //send the message length
+                    this.stream.Write(messageLength, 0, messageLength.Length);
+
+                    //send the message
                     this.stream.Write(buffer, 0, N);
                 }                                
             }
@@ -149,7 +155,10 @@ namespace PdS_Project_2015_client_WPF.services
         {
             lock (this.socketLock)
             {
-                this.stream.WriteByte(0);
+                //send a message length of zero bytes
+                byte[] zeroMessageLength = BitConverter.GetBytes((int)0);
+
+                this.stream.Write(zeroMessageLength, 0, zeroMessageLength.Length);
             }            
         }
 

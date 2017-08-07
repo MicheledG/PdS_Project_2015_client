@@ -78,7 +78,7 @@ namespace PdS_Project_2015_client_WPF
             this.applicationMonitor.ApplicationMonitorFailure += this.ApplicationMonitorFailureEventHandler;
             this.applicationMonitor.PropertyChanged += this.ApplicationMonitorStatusChangeEventHandler;
             this.keysSender.NewKeyInShortcut += this.KeysSenderNewKeyInShortcutEventHandler;
-            this.tbSendKeys.IsEnabled = false;
+            this.tbSendKeys.IsEnabled = false;            
         }
         
         private void Timer_Tick(object sender, EventArgs e)
