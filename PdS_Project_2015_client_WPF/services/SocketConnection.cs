@@ -79,17 +79,40 @@ namespace PdS_Project_2015_client_WPF.services
             try
             {
                 lock (this.socketLock)
-                {
+                {                                        
                     //translate the message from string to bytes
                     byte[] buffer = Encoding.ASCII.GetBytes(message);
                     int N = buffer.Count();
                     byte[] messageLength = BitConverter.GetBytes(N);
 
+                    //DEBUG START
+                    Console.WriteLine("===============================");
+                    Console.WriteLine("Sending message length: " + N);
+                    Console.WriteLine("===============================");
+                    //DEBUG END
+
                     //send the message length
                     this.stream.Write(messageLength, 0, messageLength.Length);
 
+                    //DEBUG START
+                    Console.WriteLine("===============================");
+                    Console.WriteLine("Message length sent!");
+                    Console.WriteLine("===============================");
+                    Console.WriteLine("===============================");
+                    Console.WriteLine("Sending message body: ");
+                    Console.WriteLine(message);
+                    Console.WriteLine("===============================");
+                    //DEBUG END
+
                     //send the message
                     this.stream.Write(buffer, 0, N);
+
+                    //DEBUG START
+                    Console.WriteLine("===============================");
+                    Console.WriteLine("Message sent!");
+                    Console.WriteLine("===============================");
+                    System.Threading.Thread.Sleep(1000);
+                    //DEBUG END
                 }                                
             }
             catch(Exception e)
@@ -123,7 +146,7 @@ namespace PdS_Project_2015_client_WPF.services
                 //detect incoming message                
                 try
                  {                    
-                    this.checkConnectionStatus();
+                    this.CheckConnectionStatus();
                     if (this.stream.DataAvailable)
                     {
                         //read msg from server
@@ -158,15 +181,27 @@ namespace PdS_Project_2015_client_WPF.services
             Console.WriteLine("Socket connection thread says:'Bye Bye :-)'");
         }
 
-        private void checkConnectionStatus()
+        private void CheckConnectionStatus()
         {
             lock (this.socketLock)
             {
                 //send a message length of zero bytes
                 byte[] zeroMessageLength = BitConverter.GetBytes((int)0);
 
+                //DEBUG START
+                Console.WriteLine("===============================");
+                Console.WriteLine("Checking connection status...");
+                Console.WriteLine("===============================");
+                //DEBUG END
+
                 this.stream.Write(zeroMessageLength, 0, zeroMessageLength.Length);
-            }            
+
+                //DEBUG START
+                Console.WriteLine("===============================");
+                Console.WriteLine("Connection is alive!");
+                Console.WriteLine("===============================");
+                //DEBUG END
+            }
         }
 
         private string ReadMessage()

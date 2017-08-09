@@ -34,7 +34,7 @@ namespace PdS_Project_2015_client_WPF.services
             this.timeOnFocus = System.TimeSpan.Zero;
             this.timeOnFocusPercentual = 0;
             //need to do this action in GUI thread because BitmapImages are bad boys
-            Application.Current.Dispatcher.Invoke(new Action(() =>
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 this.Icon = this.fromBase64ToImage(applicationInfo.Icon64);                
             }));            

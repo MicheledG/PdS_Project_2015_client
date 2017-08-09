@@ -186,7 +186,6 @@ namespace PdS_Project_2015_client_WPF.services
             }
 
             this.NotifyAppClosedEvent(appId);
-
         }
 
         private void ChangeFocusInInfoDB(Int64 previousFocusAppId, Int64 currentFocusAppId)

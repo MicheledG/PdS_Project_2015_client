@@ -131,7 +131,7 @@ namespace PdS_Project_2015_client_WPF.services
         {
             lock (this.monitorLock)
             {
-                //clone the db wit a deep copy
+                //clone the db with a deep copy
                 Dictionary<Int64, ApplicationDetails> clone = new Dictionary<Int64, ApplicationDetails>();
                 foreach (KeyValuePair<Int64, ApplicationDetails> originalEntry in this.applicationDetailsDB)
                 {
