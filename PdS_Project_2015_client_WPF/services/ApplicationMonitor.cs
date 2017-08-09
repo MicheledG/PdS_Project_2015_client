@@ -220,17 +220,17 @@ namespace PdS_Project_2015_client_WPF.services
                 lock (this.monitorLock)
                 {
                     //if the previous app with focus is in the db yet, change its status
-                    if (this.applicationDetailsDB.ContainsKey(previousFocusAppId))
+                    if (previousFocusAppId != -1 && this.applicationDetailsDB.ContainsKey(previousFocusAppId))
                     {
                         this.applicationDetailsDB[previousFocusAppId].HasFocus = false;
                     }
 
                     //update the new app with focus
-                    if (this.applicationDetailsDB.ContainsKey(currentFocusAppId))
+                    if (currentFocusAppId != -1 && this.applicationDetailsDB.ContainsKey(currentFocusAppId))
                     {
                         this.applicationDetailsDB[currentFocusAppId].HasFocus = true;
                     }
-                    else
+                    else if(currentFocusAppId != -1)
                     {
                         throw new Exception("impossible to update focus: missing the current focus application in the application monitor db");
                     }                                       
