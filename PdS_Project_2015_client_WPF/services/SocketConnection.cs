@@ -110,8 +110,7 @@ namespace PdS_Project_2015_client_WPF.services
                     //DEBUG START
                     Console.WriteLine("===============================");
                     Console.WriteLine("Message sent!");
-                    Console.WriteLine("===============================");
-                    System.Threading.Thread.Sleep(1000);
+                    Console.WriteLine("===============================");                    
                     //DEBUG END
                 }                                
             }
