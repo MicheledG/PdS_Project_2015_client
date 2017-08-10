@@ -188,7 +188,7 @@ namespace PdS_Project_2015_client_WPF.services
             }
         }
 
-        //Handler called by anyone to remove the details of a closed application from the Monitor DB
+        //Handler called by the data source to remove the details of a closed application from the application monitor DB
         private void AppClosedEventHandler(Int64 appId)
         {
             try
@@ -212,7 +212,7 @@ namespace PdS_Project_2015_client_WPF.services
 
         }
 
-        //Handler called by anyone to update the application which holds the focus
+        //Handler called by the data source to update the application which holds the focus
         private void FocusChangeEventHandler(Int64 previousFocusAppId, Int64 currentFocusAppId)
         {
             try
