@@ -114,14 +114,14 @@ namespace PdS_Project_2015_client_WPF
                 if (!applicationDetails.ContainsKey(indexEntry.Key))
                 {
                     this.applicationDetailsList.RemoveAt(indexEntry.Value);
-                    this.applicationDetailsIndexes.Remove(indexEntry.Key);
-                    i--;
+                    this.applicationDetailsIndexes.Remove(indexEntry.Key);                    
                     for(int j = i; j < this.applicationDetailsIndexes.Count; j++)
                     {
                         KeyValuePair<Int64, int> indexToUpdate = this.applicationDetailsIndexes.ElementAt(j);
                         int oldIndex = indexToUpdate.Value;                         
                         this.applicationDetailsIndexes[indexToUpdate.Key] = oldIndex - 1;                        
                     }
+                    i--;
                 }
             }
 
